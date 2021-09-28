@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PersonalDataController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/signup', [AuthController::class, 'signUp']);
 Route::post('/auth', [AuthController::class, 'signIn']);
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/user/personal', [PersonalDataController::class, 'getPersonalData']);
+    Route::post('/user/personal', [PersonalDataController::class, 'postPersonalData']);
+});
+
 

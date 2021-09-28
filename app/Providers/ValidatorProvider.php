@@ -1,26 +1,22 @@
 <?php
 
-namespace App\Models;
+namespace App\Providers;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\ServiceProvider;
 
-class Validated extends Model
+class ValidatorProvider extends ServiceProvider
 {
+    // TODO: Поле 'phone_number' нуждается в правиле  'unique:users,phone_number' для регистрации, но не нуждается для авторизации
     private static $rules = [
         'phone_number' => ['required', 'string', 'max:11'],
         'email' => ['required', 'string', 'unique:users,email'],
         'password' => ['required'],
         'first_name' => ['required', 'string'],
         'last_name' => ['required', 'string'],
-        'phone' => ['required', 'unique:users', 'string'],
+        'phone' => ['required', 'string'],
         'document_number' => ['required', 'string', 'max:10'],
         'password' => ['required', 'string'],
-    ];
-
-    protected $fillable = [
-        'phone_number', 'email', 'password'
     ];
 
     public static function globalValidation($req)

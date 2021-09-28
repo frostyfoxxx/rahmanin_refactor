@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Validated;
+
+use App\Providers\ValidatorProvider;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -11,11 +12,11 @@ class AuthController extends Controller
     //
     public function signUp(Request $request)
     {
-        $validated = Validated::globalValidation($request->all()); // Метод глобальной валидации входящих данных
+        $validated = ValidatorProvider::globalValidation($request->all()); // Метод глобальной валидации входящих данных
 
 
         if ($validated->fails()) {
-            return Validated::errorResponse($validated); // Метод, возврающий JSON-ошибки валидации
+            return ValidatorProvider::errorResponse($validated); // Метод, возврающий JSON-ошибки валидации
         }
 
         $users = User::checkCreateUser($request);
@@ -42,10 +43,10 @@ class AuthController extends Controller
 
     public function signIn(Request $request)
     {
-        $validated = Validated::globalValidation($request->all());
+        $validated = ValidatorProvider::globalValidation($request->all());
 
         if ($validated->fails()) {
-            return Validated::errorResponse($validated);
+            return ValidatorProvider::errorResponse($validated);
         }
 
         if (!User::checkCreateUser($request)) {
