@@ -81,6 +81,10 @@ class DatabaseProvider extends ServiceProvider
         }
     }
 
+    /* 
+        Метод, преобразующий данные с базы в JSON-формат
+        Входящие данные: Данные с базы и класс ресурса для преобразования 
+    */
     public static function getData($data, $resource)
     {
         return response()->json([
