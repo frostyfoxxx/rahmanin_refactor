@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Traits\HasRolesAndPermissions;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -46,12 +46,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    
     public static function checkCreateUser($request)
     {
-        return User::query()->where('phone_number', '=', $request->input('phone_number'))->orWhere('email', '=' . $request->input('email'))->first();
+        if ($request->email === null) {
+            return Auth::attempt($request->all());
+        } else {
+            return User::query()->where('phone_number', '=', $request->input('phone_number'))->orWhere('email', '=' . $request->input('email'))->first();
+        }
     }
 
-    public static function createUser($request) {
+    public static function createUser($request)
+    {
         $user = User::create([
             'phone_number' => $request->input('phone_number'),
             'email' => $request->input('email'),
@@ -63,5 +69,17 @@ class User extends Authenticatable
         $user->save();
 
         return true;
+    }
+
+    public static function loggedUser() {
+        $user = Auth::user();
+        $role = auth('sanctum')->user()->roles[0]->slug;
+        $token = $user->createToken('token')->plainTextToken;
+        $cookie = cookie('jwt', $token, 60 * 24 * 7); // 7 day
+        
+        return [
+            'role' => $role,
+            'cookie' => $cookie
+        ];
     }
 }

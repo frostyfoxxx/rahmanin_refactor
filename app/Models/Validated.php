@@ -10,7 +10,7 @@ class Validated extends Model
 {
     private static $rules = [
         'phone_number' => ['required', 'string', 'max:11'],
-        'email' => ['required', 'string'],
+        'email' => ['required', 'string', 'unique:users,email'],
         'password' => ['required'],
         'first_name' => ['required', 'string'],
         'last_name' => ['required', 'string'],
