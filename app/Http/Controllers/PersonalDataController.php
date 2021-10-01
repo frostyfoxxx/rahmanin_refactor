@@ -28,18 +28,39 @@ class PersonalDataController extends Controller
             return ValidatorProvider::errorResponse($validated);
         }
 
-        $check = DatabaseProvider::checkExistData("POST", PersonalsData::class, 'Personal data has already been added by the user');
+        $check = DatabaseProvider::checkExistData('POST', PersonalsData::class, 'Personal data has already been added by the user');
         if ($check['results']) {
             return $check['response'];
         }
 
-        PersonalsData::addOnTable($request);
+        DatabaseProvider::addOnTable($request->all(), PersonalsData::class);
 
         return response()->json([
             'data' => [
                 'code' => 201,
                 'message' => 'Personal data has been created.'
             ]
+        ], 201);
+    }
+
+    public function patchPersonalData(Request $request)
+    {
+        $validated = ValidatorProvider::globalValidation($request->all());
+
+        if ($validated->fails()) {
+            return ValidatorProvider::errorResponse($validated);
+        }
+
+        $check = DatabaseProvider::checkExistData('PATCH', PersonalsData::class, 'No data was found for this user');
+        if ($check['results']) {
+            return $check['response'];
+        }
+
+        DatabaseProvider::patchOnTable($request->all(), $check['response']);
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Personal data has been updated'
         ], 201);
     }
 }

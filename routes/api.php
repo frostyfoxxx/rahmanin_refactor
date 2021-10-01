@@ -26,6 +26,7 @@ Route::post('/auth', [AuthController::class, 'signIn']);
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/user/personal', [PersonalDataController::class, 'getPersonalData']);
     Route::post('/user/personal', [PersonalDataController::class, 'postPersonalData']);
+    Route::patch('/user/personal', [PersonalDataController::class, 'patchPersonalData']);
 });
 
 
