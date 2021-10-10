@@ -25,9 +25,13 @@ class ValidatorProvider extends ServiceProvider
         'place_of_birth' => 'required|string|max:255',
         'registration_address' => 'required|string|max:255',
         'lack_of_citizenship' => 'required|boolean',
+        'school_name' => 'required|string|max:255',
+        'number_of_classes' => 'required|integer',
+        'year_of_ending' => 'required|date_format:Y',
+        'number_of_certificate' => 'required|numeric|digits:14',
     ];
 
-    public static function globalValidation($req, $options = null)
+    public static function globalValidation(array $req, $options = null)
     {
         // array_keys(%)
         $fields = [];

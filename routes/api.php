@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PassportController;
 use App\Http\Controllers\PersonalDataController;
+use App\Http\Controllers\SchoolController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('user/passport', [PassportController::class, 'getPassportData']);
     Route::post('/user/passport', [PassportController::class, 'createPassportData']);
     Route::patch('/user/passport', [PassportController::class, 'updatePassportData']);
+    Route::get('user/school', [SchoolController::class, 'getSchool']);
+    Route::post('/user/school', [SchoolController::class, 'createSchoolData']);
+    Route::patch('/user/school', [SchoolController::class, 'updateSchoolData']);
 
 });
 
