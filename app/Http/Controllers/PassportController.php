@@ -28,7 +28,7 @@ class PassportController extends Controller
             return ValidatorProvider::errorResponse($validated);
         }
 
-        $checkExists = DatabaseProvider::checkExistData('POST', Passport::class, 'Personal data has already been added by the user');
+        $checkExists = DatabaseProvider::checkExistData('POST', Passport::class, 'Passports data has already been added by the user');
         if ($checkExists['results']) {
             return $checkExists['response'];
         }
