@@ -46,6 +46,28 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /*
+      Блок инициализации связей для EloquentORM
+    */
+
+    public function school()
+    {
+      return $this->hasOne(School::class);
+    }
+
+    public function personalData()
+    {
+      return $this->hasOne(PersonalData::class, 'user_id', 'id');
+    }
+
+    public function passport()
+    {
+      return $this->hasOne(Passport::class);
+    }
+
+    /* 
+      Функциональный блок модели
+    */
     
     public static function checkCreateUser($request)
     {
