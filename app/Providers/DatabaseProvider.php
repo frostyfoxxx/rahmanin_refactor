@@ -132,7 +132,7 @@ class DatabaseProvider extends ServiceProvider
         foreach ($request as $key => $value) {
             $postArray[$key] = $value;
         }
-        $postArray['users'] = $user;
+        $postArray['users_id'] = $user;
 
         $model::create($postArray);
     }
