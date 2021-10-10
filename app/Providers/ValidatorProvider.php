@@ -11,12 +11,20 @@ class ValidatorProvider extends ServiceProvider
     private static $rules = [
         'phone_number' => ['required', 'numeric', 'digits:11'],
         'email' => ['required', 'email', 'unique:users,email'],
-        'password' => ['required'],
         'first_name' => ['required', 'string'],
         'last_name' => ['required', 'string'],
         'phone' => ['required', 'numeric', 'digits:11'],
         'document_number' => ['required', 'string', 'max:10'],
         'password' => ['required', 'string', 'min:6'],
+        'series' => 'required|string|digits:4',
+        'number' => 'required|string|digits:6',
+        'date_of_issue' => 'required|date_format:Y-m-d',
+        'issued_by' => 'required|string|max:255',
+        'date_of_birth' => 'required|date_format:Y-m-d',
+        'gender' => 'required|string|max:255',
+        'place_of_birth' => 'required|string|max:255',
+        'registration_address' => 'required|string|max:255',
+        'lack_of_citizenship' => 'required|boolean',
     ];
 
     public static function globalValidation($req, $options = null)
