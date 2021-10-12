@@ -33,7 +33,6 @@ class ValidatorProvider extends ServiceProvider
 
     public static function globalValidation(array $req, $options = null)
     {
-        // array_keys(%)
         $fields = [];
 
         foreach (self::$rules as $key => $value) {
