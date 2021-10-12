@@ -34,8 +34,8 @@ class DatabaseProvider extends ServiceProvider
         $user = auth('sanctum')->user()->id;
         switch ($httpMethod) {
             case 'GET':
-                $user = $model::where('users_id', $user)->get();
-                if ($user->isEmpty()) {
+                $data = $model::where('users_id', $user)->get();
+                if ($data->isEmpty()) {
                     return [
                         'results' => true,
                         'response' => response()->json([
@@ -48,7 +48,7 @@ class DatabaseProvider extends ServiceProvider
                 } else {
                     return [
                         'results' => false,
-                        'response' => $user
+                        'response' => $data
                     ];
                 }
                 break;
@@ -108,24 +108,36 @@ class DatabaseProvider extends ServiceProvider
         Метод, преобразующий данные с базы в JSON-формат
         Входящие данные: Данные с базы и класс ресурса для преобразования 
     */
-    public static function getData($data, $resource)
+    public static function getData($data, $resource, $options = null)
     {
-        return response()->json([
-            'data' => [
-                'code' => 200,
-                'message' => 'The requested data was found.',
-                'content' => $resource::collection($data)
-            ]
-        ], 200);
+        if (!$options) {
+            return response()->json([
+                'data' => [
+                    'code' => 200,
+                    'message' => 'The requested data was found.',
+                    'content' => $resource::collection($data)
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => [
+                    'code' => 200,
+                    'message' => 'The requested data was found.',
+                    'content' => $resource::collection($data),
+                    key($options) => $options[key($options)]
+                ]
+            ], 200); 
+        }
     }
-    
+
     /* 
         Метод, добавляющий данные в необходимую таблицу Базы Данных
         Входящие данные:
             $request - Массив с данными
             $model - Модель таблицы Базы Данных
     */
-    public static function addOnTable(array $request, $model) {
+    public static function addOnTable(array $request, $model)
+    {
         $user = auth('sanctum')->user()->id;
         $postArray = [];
 
@@ -144,12 +156,11 @@ class DatabaseProvider extends ServiceProvider
             $data - Объект с данными из Базы Данных
     */
     public static function patchOnTable(array $res, Object $data)
-    {       
+    {
         foreach ($res as $key => $value) {
             $data->$key = $value;
         }
 
         $data->save();
-
     }
 }
