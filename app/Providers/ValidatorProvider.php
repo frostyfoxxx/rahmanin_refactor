@@ -29,6 +29,8 @@ class ValidatorProvider extends ServiceProvider
         'number_of_classes' => 'required|integer',
         'year_of_ending' => 'required|date_format:Y',
         'number_of_certificate' => 'required|numeric|digits:14',
+        "*.subject" => ['required', 'string'],
+        '*.appraisal' => ['required', 'numeric', 'between:3,5']
     ];
 
     public static function globalValidation(array $req, $options = null)

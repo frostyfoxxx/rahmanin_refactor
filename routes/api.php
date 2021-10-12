@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ParentController;
 use App\Http\Controllers\PassportController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\SchoolController;
@@ -38,6 +39,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::patch('/user/school', [SchoolController::class, 'updateSchoolData']);
     Route::get('/user/stuff', [AppraisalController::class, 'getUserApproisal']);
     Route::post('user/stuff', [AppraisalController::class, 'createUserAppraisal']);
+    Route::post('/user/parents', [ParentController::class, 'createParent']);
 });
 
 
