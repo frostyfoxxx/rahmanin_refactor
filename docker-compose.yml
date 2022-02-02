@@ -1,0 +1,32 @@
+version: "3.3"
+
+services:
+    nginx:
+        build:
+            context: ./
+            dockerfile: docker/nginx.Dockerfile
+        ports:
+            - "80:80"
+        links:
+            - fpm
+        volumes:
+            - ./:/var/www/diplom
+    fpm:
+        build:
+            args:
+                user: sammy
+                uid: 1000
+            context: .
+            dockerfile: docker/fpm.Dockerfile
+        volumes:
+            -   ./:/var/www/diplom
+        links:
+            - pgsql
+    pgsql:
+        image: mysql:5.7
+        ports:
+            - "33061:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=diplom
+
