@@ -5,21 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\User;
 
 use App\Providers\ValidatorProvider;
+use App\Services\AuthService;
+use App\Services\ValidatorService;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    //
+    private $authService;
+    private $validatorService;
+
+    public function __construct(AuthService $authService, ValidatorService $validatorService) {
+        $this->authService = $authService;
+        $this->validatorService = $validatorService;
+    }
+
     public function signUp(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all()); // Метод глобальной валидации входящих данных
-
+        $validated = $this->validatorService->globalValidation($request); // Метод глобальной валидации входящих данных
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated); // Метод, возврающий JSON-ошибки валидации
+            return response()->json([
+                "error" => [
+                    "code" => 422,
+                    "message" => "Validation error",
+                    "error" => $validated->errors(),
+                ]
+            ], 422); // Метод, возврающий JSON-ошибки валидации
         }
 
-        $users = User::checkCreateUser($request);
+        $users = $this->authService->checkCreateUser($request);
         if ($users) {
             return response()->json([
                 'error' => [
@@ -29,7 +43,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::createUser($request);
+        $user = $this->authService->signUp($request);
 
         if ($user) {
             return response()->json([

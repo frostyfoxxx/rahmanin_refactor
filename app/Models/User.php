@@ -65,32 +65,10 @@ class User extends Authenticatable
       return $this->hasOne(Passport::class);
     }
 
-    /* 
-      Функциональный блок модели
-    */
-    
-    public static function checkCreateUser($request)
-    {
-        if ($request->email === null) {
-            return Auth::attempt($request->all());
-        } else {
-            return User::query()->where('phone_number', '=', $request->input('phone_number'))->orWhere('email', '=' . $request->input('email'))->first();
-        }
-    }
 
     public static function createUser($request)
     {
-        $user = User::create([
-            'phone_number' => $request->input('phone_number'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-            'stuff' => false
-        ]);
 
-        $user->roles()->attach(Roles::where('slug', 'student')->first());
-        $user->save();
-
-        return true;
     }
 
     public static function loggedUser() {
@@ -98,7 +76,7 @@ class User extends Authenticatable
         $role = auth('sanctum')->user()->roles[0]->slug;
         $token = $user->createToken('token')->plainTextToken;
         $cookie = cookie('jwt', $token, 60 * 24 * 7); // 7 day
-        
+
         return [
             'role' => $role,
             'cookie' => $cookie

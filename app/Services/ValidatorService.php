@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Providers;
+namespace App\Services;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\ServiceProvider;
 
-class ValidatorProvider extends ServiceProvider
+class ValidatorService
 {
     // TODO: Поле 'phone_number' нуждается в правиле  'unique:users,phone_number' для регистрации, но не нуждается для авторизации
     private static $rules = [
@@ -33,7 +33,12 @@ class ValidatorProvider extends ServiceProvider
         '*.appraisal' => ['required', 'numeric', 'between:3,5']
     ];
 
-    public static function globalValidation(array $req, $options = null)
+    /**
+     * @param Request $req - Объект с приходящими данными
+     * @param array $options - массив с доп.полями для проверок
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    public function globalValidation(Request $req, array $options = [])
     {
         $fields = [];
 
@@ -43,23 +48,13 @@ class ValidatorProvider extends ServiceProvider
             }
         }
 
-        if ($options) {
+        if (!empty($options)) {
             foreach ($options as $key => $value) {
                 $fields[$key] = $value;
             }
         }
 
-        return Validator::make($req, $fields);
+        return Validator::make($req->all(), $fields);
     }
 
-    public static function errorResponse($valid)
-    {
-        return response()->json([
-            "error" => [
-                "code" => 422,
-                "message" => "Validation error",
-                "error" => $valid->errors(),
-            ]
-        ], 422);
-    }
 }
