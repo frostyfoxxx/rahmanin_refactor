@@ -2,28 +2,41 @@ version: "3.3"
 
 services:
     nginx:
-        build:
-            context: ./
-            dockerfile: docker/nginx.Dockerfile
+        image: nginx:stable-alpine
+        container_name: diplom-nginx
         ports:
-            - "80:80"
+            - "8088:80"
         links:
             - fpm
         volumes:
             - ./:/var/www/diplom
+            - ./docker/conf/nginx.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - fpm
+            - pgsql
     fpm:
         build:
             context: .
             dockerfile: docker/fpm.Dockerfile
+        container_name: diplom-php
         volumes:
             - ./:/var/www/diplom
         links:
             - pgsql
     pgsql:
         image: mysql:5.7
+        container_name: diplom-mysql
+        restart: unless-stopped
+        tty: true
+        volumes:
+            -   ./mysql:/var/lib/diplom/mysql
         ports:
             - "33061:3306"
         environment:
             - MYSQL_ROOT_PASSWORD=root
             - MYSQL_DATABASE=diplom
+            - MYSQL_USER=developer
+            - MYSQL_PASSWORD=developer
+            - SERVICE_TAGS=dev
+            - SERVICE_NAME=mysql
 

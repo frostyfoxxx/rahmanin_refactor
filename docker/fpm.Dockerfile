@@ -1,8 +1,7 @@
 FROM php:7.4-fpm
 
 
-RUN apt-get update \
-    && docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-install pdo pdo_mysql
 
 
 # Get latest Composer
@@ -14,8 +13,3 @@ RUN useradd -u 1000 -ms /bin/bash -g www www
 
 RUN mkdir -p /home/www/.composer && \
     chown -R www:www /home/www
-
-# Set working directory
-WORKDIR /var/www/diplom
-
-USER www
