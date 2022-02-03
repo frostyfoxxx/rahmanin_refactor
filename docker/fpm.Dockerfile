@@ -1,6 +1,22 @@
 FROM php:7.4-fpm
 
 
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libzip-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev libjpeg62-turbo-dev libpng-dev libxpm-dev \
+    libfreetype6 \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl
+
 RUN docker-php-ext-install pdo pdo_mysql
 
 
