@@ -65,21 +65,4 @@ class User extends Authenticatable
       return $this->hasOne(Passport::class);
     }
 
-
-    public static function createUser($request)
-    {
-
-    }
-
-    public static function loggedUser() {
-        $user = Auth::user();
-        $role = auth('sanctum')->user()->roles[0]->slug;
-        $token = $user->createToken('token')->plainTextToken;
-        $cookie = cookie('jwt', $token, 60 * 24 * 7); // 7 day
-
-        return [
-            'role' => $role,
-            'cookie' => $cookie
-        ];
-    }
 }

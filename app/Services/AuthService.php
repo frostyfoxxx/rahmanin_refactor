@@ -42,4 +42,19 @@ class AuthService
 
         return true;
     }
+
+    /**
+     * @return array
+     */
+    public function signIn() {
+        $user = Auth::user();
+        $role = auth('sanctum')->user()->roles[0]->slug;
+        $token = $user->createToken('token')->plainTextToken;
+        $cookie = cookie('jwt', $token, 60 * 24 * 7); // 7 day
+
+        return [
+            'role' => $role,
+            'cookie' => $cookie
+        ];
+    }
 }

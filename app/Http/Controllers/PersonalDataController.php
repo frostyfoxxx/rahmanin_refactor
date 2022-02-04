@@ -6,26 +6,40 @@ use App\Http\Resources\PersonalsDataResource;
 use App\Models\PersonalsData;
 use App\Providers\DatabaseProvider;
 use App\Providers\ValidatorProvider;
+use App\Services\PersonalService;
+use App\Services\ValidatorService;
 use Illuminate\Http\Request;
 
 class PersonalDataController extends Controller
 {
-    public function getPersonalData()
-    {
+    private $personalService, $validatorService;
+
+    public function __construct(ValidatorService $validatorService, PersonalService $personalService) {
+        $this->personalService = $personalService;
+        $this->validatorService = $validatorService;
+    }
+
+    public function getPersonalData() {
         $data = DatabaseProvider::checkExistData('GET', PersonalsData::class, 'No data was found for this user');
         if ($data['results']) {
             return $data['response'];
         }
-        
+
         return DatabaseProvider::getData($data['response'], PersonalsDataResource::class);
     }
 
     public function postPersonalData(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                "error" => [
+                    "code" => 422,
+                    "message" => "Validation error",
+                    "error" => $validated->errors(),
+                ]
+            ], 422);
         }
 
         $check = DatabaseProvider::checkExistData('POST', PersonalsData::class, 'Personal data has already been added by the user');
@@ -33,7 +47,7 @@ class PersonalDataController extends Controller
             return $check['response'];
         }
 
-        DatabaseProvider::addOnTable($request->all(), PersonalsData::class);
+        $this->personalService->addPersonalData($request);
 
         return response()->json([
             'data' => [

@@ -57,13 +57,19 @@ class AuthController extends Controller
 
     public function signIn(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                "error" => [
+                    "code" => 422,
+                    "message" => "Validation error",
+                    "error" => $validated->errors(),
+                ]
+            ], 422);
         }
 
-        if (!User::checkCreateUser($request)) {
+        if (!$this->authService->checkCreateUser($request)) {
             return response()->json([
                 'errors' => [
                     'code' => 401,
@@ -72,7 +78,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = User::loggedUser();
+        $user = $this->authService->signIn();
 
         return response()->json([
             'data' => [
