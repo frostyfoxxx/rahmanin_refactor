@@ -14,18 +14,31 @@ class PersonalDataController extends Controller
 {
     private $personalService, $validatorService;
 
-    public function __construct(ValidatorService $validatorService, PersonalService $personalService) {
+    public function __construct(ValidatorService $validatorService, PersonalService $personalService)
+    {
         $this->personalService = $personalService;
         $this->validatorService = $validatorService;
     }
 
-    public function getPersonalData() {
-        $data = DatabaseProvider::checkExistData('GET', PersonalsData::class, 'No data was found for this user');
-        if ($data['results']) {
-            return $data['response'];
+
+    public function getPersonalData()
+    {
+        /** Проверка на существование данных [false - нет, true - есть] */
+        if (!$this->personalService->checkPersonalData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Personal Data not found',
+                'data' => []
+            ], 200);
         }
 
-        return DatabaseProvider::getData($data['response'], PersonalsDataResource::class);
+        $data = $this->personalService->getPersonalData();
+
+        return response()->json([
+            'code' => 200,
+            'message' => ' Personal Data found',
+            'data' => PersonalsDataResource::collection($data)
+        ], 200);
     }
 
     public function postPersonalData(Request $request)
@@ -42,9 +55,11 @@ class PersonalDataController extends Controller
             ], 422);
         }
 
-        $check = DatabaseProvider::checkExistData('POST', PersonalsData::class, 'Personal data has already been added by the user');
-        if ($check['results']) {
-            return $check['response'];
+        if ($this->personalService->checkPersonalData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Personal Data already exists',
+            ], 200);
         }
 
         $this->personalService->addPersonalData($request);
@@ -59,22 +74,31 @@ class PersonalDataController extends Controller
 
     public function patchPersonalData(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                "error" => [
+                    "code" => 422,
+                    "message" => "Validation error",
+                    "error" => $validated->errors(),
+                ]
+            ], 422);
         }
 
-        $check = DatabaseProvider::checkExistData('PATCH', PersonalsData::class, 'No data was found for this user');
-        if ($check['results']) {
-            return $check['response'];
+        if (!$this->personalService->checkPersonalData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Personal Data not found'
+            ], 200);
         }
 
-        DatabaseProvider::patchOnTable($request->all(), $check['response']);
+
+        $this->personalService->patchPersonalData($request);
 
         return response()->json([
             'code' => 200,
             'message' => 'Personal data has been updated'
-        ], 201);
+        ], 200);
     }
 }

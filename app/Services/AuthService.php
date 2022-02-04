@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthService
 {
     /**
+     * Проверка на существования пользователя с такими данными
      * @param Request $request - объект с данными
      * @return bool|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
      */
@@ -26,6 +27,7 @@ class AuthService
     }
 
     /**
+     * Регистрация пользоватея
      * @param Request $request - объект с данными
      * @return bool
      */
@@ -44,6 +46,7 @@ class AuthService
     }
 
     /**
+     * Авторизация пользователя и создание куки-файла
      * @return array
      */
     public function signIn() {

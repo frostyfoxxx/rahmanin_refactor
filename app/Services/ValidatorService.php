@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ValidatorService
 {
-    // TODO: Поле 'phone_number' нуждается в правиле  'unique:users,phone_number' для регистрации, но не нуждается для авторизации
+
     private static $rules = [
         'phone_number' => ['required', 'numeric', 'digits:11'],
         'email' => ['required', 'email', 'unique:users,email'],
