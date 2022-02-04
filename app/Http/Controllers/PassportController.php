@@ -4,36 +4,60 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PassportResource;
 use App\Models\Passport;
-use App\Providers\DatabaseProvider;
-use App\Providers\ValidatorProvider;
+use App\Services\PassportService;
+use App\Services\ValidatorService;
 use Illuminate\Http\Request;
 
 class PassportController extends Controller
 {
+    private $validatorService, $passportService;
+
+    public function __construct(PassportService $passportService, ValidatorService $validatorService)
+    {
+        $this->passportService = $passportService;
+        $this->validatorService = $validatorService;
+    }
+
     public function getPassportData()
     {
-        $data = DatabaseProvider::checkExistData('GET', Passport::class, 'No data was found for this user');
-        if ($data['results']) {
-            return $data['response'];
+        if (!$this->passportService->checkPassportData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Passport Data not found',
+                'data' => []
+            ], 200);
         }
 
-        return DatabaseProvider::getData($data['response'], PassportResource::class);
+        $data = $this->passportService->getPassportData();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Passport Data are found',
+            'data' => PassportResource::collection($data)
+        ], 200);
     }
 
     public function createPassportData(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                'code' => 422,
+                'message' => 'Validation error',
+                'error' => $validated->errors()
+            ], 422);
         }
 
-        $checkExists = DatabaseProvider::checkExistData('POST', Passport::class, 'Passports data has already been added by the user');
-        if ($checkExists['results']) {
-            return $checkExists['response'];
+
+        if ($this->passportService->checkPassportData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Passport Data already exists',
+            ], 200);
         }
 
-        DatabaseProvider::addOnTable($request->all(), Passport::class);
+        $this->passportService->createPassportData($request);
 
         return response()->json([
             'data' => [
@@ -45,18 +69,25 @@ class PassportController extends Controller
 
     public function updatePassportData(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                'code' => 422,
+                'message' => 'Validation error',
+                'error' => $validated->errors()
+            ], 422);
         }
 
-        $checkExists = DatabaseProvider::checkExistData('PATCH', Passport::class, 'No data was found for this user');
-        if ($checkExists['results']) {
-            return $checkExists['response'];
+        if (!$this->passportService->checkPassportData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Passport Data not found',
+                'data' => []
+            ], 200);
         }
 
-        DatabaseProvider::patchOnTable($request->all(), $checkExists['response']);
+        $this->passportService->updatePassportData($request);
 
         return response()->json([
             'code' => 200,

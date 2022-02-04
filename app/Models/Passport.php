@@ -10,7 +10,16 @@ class Passport extends Model
     use HasFactory;
 
     protected $fillable = [
-        'series', 'number', 'date_of_issue', 'issued_by', 'date_of_birth', 'gender', 'place_of_birth', 'registration_address', 'lack_of_citizenship', 'users_id'
+        'series',
+        'number',
+        'date_of_issue',
+        'issued_by',
+        'date_of_birth',
+        'gender',
+        'place_of_birth',
+        'registration_address',
+        'lack_of_citizenship',
+        'users_id'
     ];
 
     public function passport()
