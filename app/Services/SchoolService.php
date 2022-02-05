@@ -51,4 +51,16 @@ class SchoolService
             'users_id' => $user
         ]);
     }
+
+    public function updateSchoolData(Request $request)
+    {
+        $user = auth('sanctum')->user()->id;
+
+        $updatedData = School::query()->where('users_id', $user)->first();
+        $updatedData->school_name = $request->input('school_name');
+        $updatedData->number_of_classes = $request->input('number_of_classes');
+        $updatedData->year_of_ending = $request->input('year_of_ending');
+        $updatedData->number_of_certificate = $request->input('number_of_certificate');
+        $updatedData->save();
+    }
 }

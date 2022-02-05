@@ -68,22 +68,29 @@ class SchoolController extends Controller
 
     public function updateSchoolData(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                'code' => 422,
+                'message' => 'Validation error',
+                'error' => $validated->errors()
+            ], 422);
         }
 
-        $check = DatabaseProvider::checkExistData('PATCH', School::class, 'No data was found for this user');
-        if ($check['results']) {
-            return $check['response'];
+        if (!$this->schoolService->checkSchoolData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'School Data not found',
+                'data' => []
+            ], 200);
         }
 
-        DatabaseProvider::patchOnTable($request->all(), $check['response']);
+        $this->schoolService->updateSchoolData($request);
 
         return response()->json([
             'code' => 200,
             'message' => 'Schools data has been updated'
-        ], 201);
+        ], 200);
     }
 }
