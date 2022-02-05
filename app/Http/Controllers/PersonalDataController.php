@@ -47,11 +47,10 @@ class PersonalDataController extends Controller
 
         if ($validated->fails()) {
             return response()->json([
-                "error" => [
-                    "code" => 422,
-                    "message" => "Validation error",
-                    "error" => $validated->errors(),
-                ]
+                "code" => 422,
+                "message" => "Validation error",
+                "error" => $validated->errors(),
+
             ], 422);
         }
 
@@ -65,10 +64,8 @@ class PersonalDataController extends Controller
         $this->personalService->addPersonalData($request);
 
         return response()->json([
-            'data' => [
-                'code' => 201,
-                'message' => 'Personal data has been created.'
-            ]
+            'code' => 201,
+            'message' => 'Personal data has been created.'
         ], 201);
     }
 
@@ -78,11 +75,9 @@ class PersonalDataController extends Controller
 
         if ($validated->fails()) {
             return response()->json([
-                "error" => [
-                    "code" => 422,
-                    "message" => "Validation error",
-                    "error" => $validated->errors(),
-                ]
+                "code" => 422,
+                "message" => "Validation error",
+                "error" => $validated->errors(),
             ], 422);
         }
 
