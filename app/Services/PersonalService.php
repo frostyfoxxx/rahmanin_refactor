@@ -32,7 +32,6 @@ class PersonalService
      */
     public function checkPersonalData()
     {
-        $result = null;
         $user = auth('sanctum')->user()->id;
         $personalData = PersonalsData::query()->where('users_id', $user)->get();
         if ($personalData->isEmpty()) {

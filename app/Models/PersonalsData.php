@@ -27,16 +27,4 @@ class PersonalsData extends Model
         return $this->belongsTo(User::class,'users_id');
     }
 
-    public static function addOnTable($request) {
-        $user = auth('sanctum')->user()->id;
-        PersonalsData::create([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'phone' => $request->phone,
-            'users_id' => $user
-        ]);
-    }
-
-
 }

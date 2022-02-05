@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PersonalsDataResource;
-use App\Models\PersonalsData;
-use App\Providers\DatabaseProvider;
-use App\Providers\ValidatorProvider;
 use App\Services\PersonalService;
 use App\Services\ValidatorService;
 use Illuminate\Http\Request;
@@ -19,7 +16,6 @@ class PersonalDataController extends Controller
         $this->personalService = $personalService;
         $this->validatorService = $validatorService;
     }
-
 
     public function getPersonalData()
     {

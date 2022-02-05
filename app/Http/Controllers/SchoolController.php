@@ -4,36 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SchoolResource;
 use App\Models\School;
-use App\Providers\DatabaseProvider;
-use App\Providers\ValidatorProvider;
+use App\Services\SchoolService;
+use App\Services\ValidatorService;
 use Illuminate\Http\Request;
 
 class SchoolController extends Controller
 {
+    private $validatorService, $schoolService;
+
+    public function __construct(ValidatorService $validatorService, SchoolService $schoolService)
+    {
+        $this->validatorService = $validatorService;
+        $this->schoolService = $schoolService;
+    }
+
     public function getSchool()
     {
-        $data = DatabaseProvider::checkExistData('GET', School::class, 'No data was found for this user');
-        if ($data['results']) {
-            return $data['response'];
+        if (!$this->schoolService->checkSchoolData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'School data not found',
+                'data' => []
+            ], 200);
         }
 
-        return DatabaseProvider::getData($data['response'], SchoolResource::class);
+        $data = $this->schoolService->getSchoolData();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'School Data are found',
+            'data' => SchoolResource::collection($data)
+        ], 200);
     }
 
     public function createSchoolData(Request $request)
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return response()->json([
+                'code' => 422,
+                'message' => 'Validation error',
+                'error' => $validated->errors()
+            ], 422);
         }
 
-        $check = DatabaseProvider::checkExistData('POST', School::class, 'School data has already been added by the user');
-        if ($check['results']) {
-            return $check['response'];
+        if ($this->schoolService->checkSchoolData()) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'School Data already exists',
+            ], 200);
         }
 
-        DatabaseProvider::addOnTable($request->all(), School::class);
+        $this->schoolService->createSchoolData($request);
 
         return response()->json([
             'data' => [

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PassportResource;
-use App\Models\Passport;
 use App\Services\PassportService;
 use App\Services\ValidatorService;
 use Illuminate\Http\Request;
