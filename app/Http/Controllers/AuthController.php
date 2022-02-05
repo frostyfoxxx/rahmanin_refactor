@@ -8,6 +8,7 @@ use App\ReturnData\AuthReturnData;
 use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\AuthService;
 use App\Services\ValidatorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -27,7 +28,7 @@ class AuthController extends Controller
         $this->authReturnData = $authReturnData;
     }
 
-    public function signUp(Request $request)
+    public function signUp(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request); // Метод глобальной валидации входящих данных
 
@@ -46,7 +47,7 @@ class AuthController extends Controller
         }
     }
 
-    public function signIn(Request $request)
+    public function signIn(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request);
 

@@ -7,6 +7,7 @@ use App\ReturnData\StudentReturnData;
 use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\PersonalService;
 use App\Services\ValidatorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PersonalDataController extends Controller
@@ -25,7 +26,7 @@ class PersonalDataController extends Controller
         $this->validatorErrorReturnData = $validatorErrorReturnData;
     }
 
-    public function getPersonalData()
+    public function getPersonalData() : JsonResponse
     {
         /** Проверка на существование данных [false - нет, true - есть] */
         if (!$this->personalService->checkPersonalData()) {
@@ -38,7 +39,7 @@ class PersonalDataController extends Controller
         return $this->personalReturnData->returnData('Personal Data found', $collection);
     }
 
-    public function postPersonalData(Request $request)
+    public function postPersonalData(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request);
 
@@ -55,7 +56,7 @@ class PersonalDataController extends Controller
         return $this->personalReturnData->returnCreateData('Personal data has been created');
     }
 
-    public function patchPersonalData(Request $request)
+    public function patchPersonalData(Request $request)  : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request);
 
