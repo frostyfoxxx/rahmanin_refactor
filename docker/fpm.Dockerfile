@@ -15,9 +15,11 @@ RUN apt-get update && apt-get install -y \
     vim \
     unzip \
     git \
-    curl
+    curl \
+    libpq-dev
 
-RUN docker-php-ext-install pdo pdo_mysql
+# Install Postgre PDO
+RUN docker-php-ext-install pdo pdo_pgsql
 
 
 # Get latest Composer

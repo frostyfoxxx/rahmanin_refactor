@@ -24,19 +24,15 @@ services:
         links:
             - pgsql
     pgsql:
-        image: mysql:5.7
-        container_name: diplom-mysql
-        restart: unless-stopped
-        tty: true
-        volumes:
-            -   ./mysql:/var/lib/diplom/mysql
-        ports:
-            - "33061:3306"
+        image: postgres:13.3
+        container_name: diplom-pg
         environment:
-            - MYSQL_ROOT_PASSWORD=root
-            - MYSQL_DATABASE=diplom
-            - MYSQL_USER=developer
-            - MYSQL_PASSWORD=developer
-            - SERVICE_TAGS=dev
-            - SERVICE_NAME=mysql
+                POSTGRES_DB: "diplom"
+                POSTGRES_USER: "develop"
+                POSTGRES_PASSWORD: "develop"
+                PGDATA: "var/lib/diplom/pgdata"
+        ports:
+            - "5432:5432"
+        volumes:
+            -   .:/var/lib/diplom
 
