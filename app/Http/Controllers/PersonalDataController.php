@@ -3,38 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PersonalsDataResource;
+use App\ReturnData\StudentReturnData;
+use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\PersonalService;
 use App\Services\ValidatorService;
 use Illuminate\Http\Request;
 
 class PersonalDataController extends Controller
 {
-    private $personalService, $validatorService;
+    private $personalService, $validatorService, $personalReturnData, $validatorErrorReturnData;
 
-    public function __construct(ValidatorService $validatorService, PersonalService $personalService)
-    {
+    public function __construct(
+        ValidatorService         $validatorService,
+        PersonalService          $personalService,
+        StudentReturnData        $personalReturnData,
+        ValidatorErrorReturnData $validatorErrorReturnData
+    ) {
         $this->personalService = $personalService;
         $this->validatorService = $validatorService;
+        $this->personalReturnData = $personalReturnData;
+        $this->validatorErrorReturnData = $validatorErrorReturnData;
     }
 
     public function getPersonalData()
     {
         /** Проверка на существование данных [false - нет, true - есть] */
         if (!$this->personalService->checkPersonalData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'Personal Data not found',
-                'data' => []
-            ], 200);
+            return $this->personalReturnData->returnWithoutData('Personal Data not found');
         }
 
         $data = $this->personalService->getPersonalData();
+        $collection = PersonalsDataResource::collection($data);
 
-        return response()->json([
-            'code' => 200,
-            'message' => ' Personal Data found',
-            'data' => PersonalsDataResource::collection($data)
-        ], 200);
+        return $this->personalReturnData->returnData('Personal Data found', $collection);
     }
 
     public function postPersonalData(Request $request)
@@ -42,27 +43,16 @@ class PersonalDataController extends Controller
         $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return response()->json([
-                "code" => 422,
-                "message" => "Validation error",
-                "error" => $validated->errors(),
-
-            ], 422);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
 
         if ($this->personalService->checkPersonalData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'Personal Data already exists',
-            ], 200);
+            return $this->personalReturnData->returnWithoutData('Personal Data already exists');
         }
 
         $this->personalService->addPersonalData($request);
 
-        return response()->json([
-            'code' => 201,
-            'message' => 'Personal data has been created.'
-        ], 201);
+        return $this->personalReturnData->returnCreateData('Personal data has been created');
     }
 
     public function patchPersonalData(Request $request)
@@ -70,26 +60,11 @@ class PersonalDataController extends Controller
         $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return response()->json([
-                "code" => 422,
-                "message" => "Validation error",
-                "error" => $validated->errors(),
-            ], 422);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
-
-        if (!$this->personalService->checkPersonalData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'Personal Data not found'
-            ], 200);
-        }
-
 
         $this->personalService->patchPersonalData($request);
 
-        return response()->json([
-            'code' => 200,
-            'message' => 'Personal data has been updated'
-        ], 200);
+        return $this->personalReturnData->returnWithoutData('Personal data has been updated');
     }
 }

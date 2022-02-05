@@ -4,19 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 
+use App\ReturnData\AuthReturnData;
+use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\AuthService;
 use App\Services\ValidatorService;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    private $authService;
-    private $validatorService;
+    private $authService, $validatorService, $validatorErrorReturnData, $authReturnData;
 
-    public function __construct(AuthService $authService, ValidatorService $validatorService)
-    {
+
+    public function __construct(
+        AuthService $authService,
+        ValidatorService $validatorService,
+        ValidatorErrorReturnData $validatorErrorReturnData,
+        AuthReturnData $authReturnData
+    ) {
         $this->authService = $authService;
         $this->validatorService = $validatorService;
+        $this->validatorErrorReturnData = $validatorErrorReturnData;
+        $this->authReturnData = $authReturnData;
     }
 
     public function signUp(Request $request)
@@ -24,28 +32,17 @@ class AuthController extends Controller
         $validated = $this->validatorService->globalValidation($request); // Метод глобальной валидации входящих данных
 
         if ($validated->fails()) {
-            return response()->json([
-                "code" => 422,
-                "message" => "Validation error",
-                "error" => $validated->errors()
-            ], 422); // Метод, возврающий JSON-ошибки валидации
+            return $this->validatorErrorReturnData->returnData($validated); // Метод, возврающий JSON-ошибки валидации
         }
 
-        $users = $this->authService->checkCreateUser($request);
-        if ($users) {
-            return response()->json([
-                'code' => 422,
-                'message' => 'The user is already registered'
-            ], 422);
+        if ($this->authService->checkCreateUser($request)) {
+            return $this->authReturnData->returnUserAlreadyRegistered();
         }
 
         $user = $this->authService->signUp($request);
 
         if ($user) {
-            return response()->json([
-                'code' => 201,
-                'message' => 'Users has been created'
-            ], 201);
+            return $this->authReturnData->returnUserCreated();
         }
     }
 
@@ -54,26 +51,15 @@ class AuthController extends Controller
         $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return response()->json([
-                "code" => 422,
-                "message" => "Validation error",
-                "error" => $validated->errors(),
-            ], 422);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
 
         if (!$this->authService->checkCreateUser($request)) {
-            return response()->json([
-                'code' => 401,
-                'message' => 'This user not register'
-            ], 401);
+            return $this->authReturnData->returnUserNotRegister();
         }
 
         $user = $this->authService->signIn();
 
-        return response()->json([
-            'code' => 200,
-            'message' => 'Authentication successful',
-            'role' => $user['role']
-        ], 200)->withCookie($user['cookie']);
+        return $this->authReturnData->returnUserLogged($user);
     }
 }
