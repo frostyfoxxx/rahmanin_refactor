@@ -4,93 +4,74 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SchoolResource;
 use App\Models\School;
+use App\ReturnData\StudentReturnData;
+use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\SchoolService;
 use App\Services\ValidatorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SchoolController extends Controller
 {
-    private $validatorService, $schoolService;
+    private $validatorService, $schoolService, $schoolReturnData, $validatorErrorReturnData;
+    private $fields = ['number_of_classes', 'number_of_certificate', 'year_of_ending', 'school_name'];
 
-    public function __construct(ValidatorService $validatorService, SchoolService $schoolService)
+    public function __construct(
+        ValidatorService $validatorService,
+        SchoolService $schoolService,
+        StudentReturnData $schoolReturnData,
+        ValidatorErrorReturnData $validatorErrorReturnData
+    )
     {
         $this->validatorService = $validatorService;
         $this->schoolService = $schoolService;
+        $this->schoolReturnData = $schoolReturnData;
+        $this->validatorErrorReturnData = $validatorErrorReturnData;
     }
 
-    public function getSchool()
+    public function getSchool() : JsonResponse
     {
         if (!$this->schoolService->checkSchoolData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'School data not found',
-                'data' => []
-            ], 200);
+            return $this->schoolReturnData->returnWithoutData('School Data not found');
         }
 
         $data = $this->schoolService->getSchoolData();
+        $collection = SchoolResource::collection($data);
 
-        return response()->json([
-            'code' => 200,
-            'message' => 'School Data are found',
-            'data' => SchoolResource::collection($data)
-        ], 200);
+        return $this->schoolReturnData->returnData('School Data found', $collection);
     }
 
-    public function createSchoolData(Request $request)
+    public function createSchoolData(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
-            return response()->json([
-                'code' => 422,
-                'message' => 'Validation error',
-                'error' => $validated->errors()
-            ], 422);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
 
         if ($this->schoolService->checkSchoolData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'School Data already exists',
-            ], 200);
+            return $this->schoolReturnData->returnWithoutData('School Data already exists');
         }
 
         $this->schoolService->createSchoolData($request);
 
-        return response()->json([
-            'data' => [
-                'code' => 201,
-                'message' => 'School data has been created.'
-            ]
-        ], 201);
+        return $this->schoolReturnData->returnCreateData('School data has been created.');
     }
 
-    public function updateSchoolData(Request $request)
+    public function updateSchoolData(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
-            return response()->json([
-                'code' => 422,
-                'message' => 'Validation error',
-                'error' => $validated->errors()
-            ], 422);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
 
         if (!$this->schoolService->checkSchoolData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'School Data not found',
-                'data' => []
-            ], 200);
+            return $this->schoolReturnData->returnWithoutData('School Data not found');
         }
 
         $this->schoolService->updateSchoolData($request);
 
-        return response()->json([
-            'code' => 200,
-            'message' => 'Schools data has been updated'
-        ], 200);
+        return $this->schoolReturnData->returnWithoutData('Schools data has been updated');
     }
 }
