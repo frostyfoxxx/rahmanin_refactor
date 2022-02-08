@@ -11,7 +11,7 @@ class ValidatorService
     private static $rules = [
         // Регистрация и Авторизация
         'phone_number' => ['required', 'numeric', 'digits:11'],
-        'email' => ['required', 'email', 'unique:users,email'],
+        'email' => ['email', 'unique:users,email'],
         'password' => ['required', 'string', 'min:6'],
         // Персональные данные
         'phone' => ['required', 'numeric', 'digits:11'],

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 class PersonalDataController extends Controller
 {
     private $personalService, $validatorService, $personalReturnData, $validatorErrorReturnData;
+    private $fields = ['phone', 'first_name', 'middle_name', 'last_name'];
 
     public function __construct(
         ValidatorService         $validatorService,
@@ -41,7 +42,7 @@ class PersonalDataController extends Controller
 
     public function postPersonalData(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
             return $this->validatorErrorReturnData->returnData($validated);
@@ -58,7 +59,7 @@ class PersonalDataController extends Controller
 
     public function patchPersonalData(Request $request)  : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
             return $this->validatorErrorReturnData->returnData($validated);

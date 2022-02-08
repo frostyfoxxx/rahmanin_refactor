@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     private $authService, $validatorService, $validatorErrorReturnData, $authReturnData;
-
+    private $fields = ['phone_number', 'email', 'password'];
 
     public function __construct(
         AuthService $authService,
@@ -30,7 +30,7 @@ class AuthController extends Controller
 
     public function signUp(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request); // Метод глобальной валидации входящих данных
+        $validated = $this->validatorService->globalValidation($request, $this->fields); // Метод глобальной валидации входящих данных
 
         if ($validated->fails()) {
             return $this->validatorErrorReturnData->returnData($validated); // Метод, возврающий JSON-ошибки валидации
@@ -49,7 +49,7 @@ class AuthController extends Controller
 
     public function signIn(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
             return $this->validatorErrorReturnData->returnData($validated);

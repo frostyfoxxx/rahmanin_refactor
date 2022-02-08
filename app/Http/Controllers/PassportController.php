@@ -13,6 +13,16 @@ use Illuminate\Http\Request;
 class PassportController extends Controller
 {
     private $validatorService, $passportService, $passportReturnData, $validatorErrorReturnData;
+    private $fields = ['series',
+        'number',
+        'date_of_issue',
+        'issued_by',
+        'date_of_birth',
+        'gender',
+        'place_of_birth',
+        'registration_address',
+        'lack_of_citizenship'
+    ];
 
     public function __construct(
         PassportService $passportService,
@@ -40,7 +50,7 @@ class PassportController extends Controller
 
     public function createPassportData(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
             return $this->validatorErrorReturnData->returnData($validated);
@@ -58,7 +68,7 @@ class PassportController extends Controller
 
     public function updatePassportData(Request $request) : JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request);
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
             return $this->validatorErrorReturnData->returnData($validated);
