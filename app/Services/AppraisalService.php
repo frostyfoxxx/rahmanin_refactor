@@ -25,6 +25,10 @@ class AppraisalService
         return $result;
     }
 
+    /**
+     * Получение предметов пользователя
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
     public function getAppraisal() {
         $user = auth('sanctum')->user()->id;
 
@@ -68,6 +72,10 @@ class AppraisalService
         return null;
     }
 
+    /**
+     * Полчемуение среднего балла пользователя
+     * @return mixed
+     */
     public function getMiddlemark()
     {
         $user = auth('sanctum')->user()->id;
