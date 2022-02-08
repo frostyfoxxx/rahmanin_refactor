@@ -3,94 +3,69 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PassportResource;
+use App\ReturnData\StudentReturnData;
+use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\PassportService;
 use App\Services\ValidatorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PassportController extends Controller
 {
-    private $validatorService, $passportService;
+    private $validatorService, $passportService, $passportReturnData, $validatorErrorReturnData;
 
-    public function __construct(PassportService $passportService, ValidatorService $validatorService)
+    public function __construct(
+        PassportService $passportService,
+        ValidatorService $validatorService,
+        StudentReturnData $passportReturnData,
+        ValidatorErrorReturnData $validatorErrorReturnData
+    )
     {
         $this->passportService = $passportService;
         $this->validatorService = $validatorService;
+        $this->passportReturnData = $passportReturnData;
+        $this->validatorErrorReturnData = $validatorErrorReturnData;
     }
 
-    public function getPassportData()
+    public function getPassportData() : JsonResponse
     {
         if (!$this->passportService->checkPassportData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'Passport Data not found',
-                'data' => []
-            ], 200);
+            return $this->passportReturnData->returnWithoutData('Passport Data not found');
         }
 
-        $data = $this->passportService->getPassportData();
-
-        return response()->json([
-            'code' => 200,
-            'message' => 'Passport Data are found',
-            'data' => PassportResource::collection($data)
-        ], 200);
+       $data = $this->passportService->getPassportData();
+       $collection = PassportResource::collection($data);
+        return$this->passportReturnData->returnData('Passport Data found', $collection);
     }
 
-    public function createPassportData(Request $request)
+    public function createPassportData(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return response()->json([
-                'code' => 422,
-                'message' => 'Validation error',
-                'error' => $validated->errors()
-            ], 422);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
 
 
         if ($this->passportService->checkPassportData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'Passport Data already exists',
-            ], 200);
+            return $this->passportReturnData->returnWithoutData('Passport Data already exists');
         }
 
         $this->passportService->createPassportData($request);
 
-        return response()->json([
-            'data' => [
-                'code' => 201,
-                'message' => 'Passports data has been created.'
-            ]
-        ], 201);
+        return $this->passportReturnData->returnCreateData('Passport data has been created.');
     }
 
-    public function updatePassportData(Request $request)
+    public function updatePassportData(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request);
 
         if ($validated->fails()) {
-            return response()->json([
-                'code' => 422,
-                'message' => 'Validation error',
-                'error' => $validated->errors()
-            ], 422);
-        }
-
-        if (!$this->passportService->checkPassportData()) {
-            return response()->json([
-                'code' => 200,
-                'message' => 'Passport Data not found',
-                'data' => []
-            ], 200);
+            return $this->validatorErrorReturnData->returnData($validated);
         }
 
         $this->passportService->updatePassportData($request);
 
-        return response()->json([
-            'code' => 200,
-            'message' => 'Passports data has been updated'
-        ], 201);
+        return $this->passportReturnData->returnWithoutData('Passports data has been updated');
     }
 }

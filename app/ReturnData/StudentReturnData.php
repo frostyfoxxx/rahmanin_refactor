@@ -2,6 +2,8 @@
 
 namespace App\ReturnData;
 
+use Illuminate\Http\Resources\Json\JsonResource;
+
 class StudentReturnData
 {
     /**
@@ -23,7 +25,7 @@ class StudentReturnData
      * @param $data - данные с модели
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnData(string $message, $data)
+    public function returnData(string $message, JsonResource $data)
     {
         return response()->json([
             'code' => 200,
