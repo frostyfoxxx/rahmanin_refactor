@@ -37,7 +37,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('user/school', [SchoolController::class, 'getSchool']);
     Route::post('/user/school', [SchoolController::class, 'createSchoolData']);
     Route::patch('/user/school', [SchoolController::class, 'updateSchoolData']);
-    Route::get('/user/stuff', [AppraisalController::class, 'getUserApproisal']);
+    Route::get('/user/stuff', [AppraisalController::class, 'getUserAppraisal']);
     Route::post('user/stuff', [AppraisalController::class, 'createUserAppraisal']);
     Route::post('/user/parents', [ParentController::class, 'createParent']);
 });

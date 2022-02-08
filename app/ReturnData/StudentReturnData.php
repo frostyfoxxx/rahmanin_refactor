@@ -2,6 +2,7 @@
 
 namespace App\ReturnData;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StudentReturnData
@@ -9,9 +10,9 @@ class StudentReturnData
     /**
      * Метод, возвращающий JSON-ответ без данных
      * @param string $message - Сообщение
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function returnWithoutData(string $message)
+    public function returnWithoutData(string $message) : JsonResponse
     {
         return response()->json([
             'code' => 200,
@@ -22,10 +23,10 @@ class StudentReturnData
     /**
      * Метод, возвращающий JSON-ответ с данными
      * @param string $message - Сообщение
-     * @param $data - данные с модели
-     * @return \Illuminate\Http\JsonResponse
+     * @param $data - коллекция данных
+     * @return JsonResponse
      */
-    public function returnData(string $message, JsonResource $data)
+    public function returnData(string $message, JsonResource $data) : JsonResponse
     {
         return response()->json([
             'code' => 200,
@@ -37,13 +38,34 @@ class StudentReturnData
     /**
      * Метод, возвращающий JSON-ответ когда данные созданы
      * @param string $message - сообщение
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function returnCreateData(string $message)
+    public function returnCreateData(string $message) : JsonResponse
     {
         return response()->json([
             'code' => 201,
             'message' => $message
         ], 201);
+    }
+
+    /**
+     * @param string $message
+     * @param JsonResource $data
+     * @param array $custom
+     * @return JsonResponse
+     */
+    public function returnDataWithCustomField(string $message, JsonResource $data, array $custom) : JsonResponse
+    {
+        $json = [
+            'code' => 200,
+            'message' => $message,
+            'data' => $data
+        ];
+
+        foreach ($custom as $field => $value) {
+            $json[$field] = $value;
+        }
+
+        return response()->json($json, 200);
     }
 }

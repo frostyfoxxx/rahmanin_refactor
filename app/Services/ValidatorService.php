@@ -35,7 +35,7 @@ class ValidatorService
         'number_of_certificate' => 'required|numeric|digits:14',
         // Школьные предметы
         "*.subject" => ['required', 'string'],
-        '*.appraisal' => ['required', 'numeric', 'between:3,5']
+        '*.appraisal' => ['required', 'integer', 'between:3,5', 'digits:1']
     ];
 
     /**

@@ -52,6 +52,11 @@ class SchoolService
         ]);
     }
 
+    /**
+     * Изменения данных о школе
+     * @param Request $request
+     * @return void
+     */
     public function updateSchoolData(Request $request)
     {
         $user = auth('sanctum')->user()->id;

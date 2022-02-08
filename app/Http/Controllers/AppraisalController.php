@@ -4,43 +4,62 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AppraisalResource;
 use App\Models\Appraisal;
-use App\Providers\DatabaseProvider;
-use App\Providers\ValidatorProvider;
+use App\ReturnData\StudentReturnData;
+use App\ReturnData\ValidatorErrorReturnData;
+use App\Services\AppraisalService;
+use App\Services\ValidatorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AppraisalController extends Controller
 {
-    public function getUserApproisal()
+    private $appraisalService, $validatorService, $appraisalReturnData, $validatorErrorReturnData;
+    private $fields = ['*.subject', '*.appraisal'];
+
+    public function __construct(
+        AppraisalService         $appraisalService,
+        ValidatorService         $validatorService,
+        StudentReturnData        $appraisalReturnData,
+        ValidatorErrorReturnData $validatorErrorReturnData
+    )
     {
-        $data = DatabaseProvider::checkExistData('GET', Appraisal::class, 'No data was found for this user');
-        if ($data['results']) {
-            return $data['response'];
-        }
-        $middlemark = Appraisal::getMiddlemark();
-        return DatabaseProvider::getData($data['response'], AppraisalResource::class, ['middlemark' => $middlemark]);
+        $this->appraisalService = $appraisalService;
+        $this->validatorService = $validatorService;
+        $this->appraisalReturnData = $appraisalReturnData;
+        $this->validatorErrorReturnData = $validatorErrorReturnData;
     }
 
-    public function createuserAppraisal(Request $request)
+    public function getUserAppraisal() : JsonResponse
     {
-        $validated = ValidatorProvider::globalValidation($request->all());
+        if ($this->appraisalService->checkAppraisalData()) {
+            return $this->appraisalReturnData->returnWithoutData('Appraisal Data not found');
+        }
+
+        $data = $this->appraisalService->getAppraisal();
+        $middlemark = $this->appraisalService->getMiddlemark();
+        $collection = AppraisalResource::collection($data);
+        return $this->appraisalReturnData->returnDataWithCustomField(
+            'Appraisal Data found',
+            $collection,
+            ['middlemark' => $middlemark]
+        );
+    }
+
+    public function createUserAppraisal(Request $request) : JsonResponse
+    {
+        $validated = $this->validatorService->globalValidation($request, $this->fields);
 
         if ($validated->fails()) {
-            return ValidatorProvider::errorResponse($validated);
+            return $this->validatorErrorReturnData->returnData($validated);
+        }
+        $subject = $this->appraisalService->checkSubjectOnUser($request);
+        if (!empty($subject)) {
+            return $this->appraisalReturnData->returnWithoutData('This subject: ' . $subject . ' already added');
         }
 
-        if (Appraisal::checkSubjectOnUser($request->all())) {
-            return response()->json([
-                'code' => 400,
-                'message' => 'This subject has already been added'
-            ], 400);
-        }
+        $this->appraisalService->addAppraisal($request);
+        $this->appraisalService->changeMiddlemark();
 
-        Appraisal::addAppraisal($request->all());
-        Appraisal::changeMiddlemark();
-
-        return response()->json([
-            'code' => 201,
-            'message' => 'Subject added successfully'
-        ]);
+        return $this->appraisalReturnData->returnCreateData('Subject added successfully');
     }
 }
