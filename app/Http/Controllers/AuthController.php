@@ -106,12 +106,8 @@ class AuthController extends Controller
      *       ),
      *       @OA\Property(
      *         property="error",
-     *         type="array",
-     *         @OA\Items(
-     *           title="phone_number",
-     *           type="string",
-     *           example="Field 'phone_number' is required"
-     *         )
+     *         type="object",
+     *         ref="#/components/schemas/Validation"
      *       )
      *     )
      *   )
@@ -214,12 +210,8 @@ class AuthController extends Controller
      *       ),
      *       @OA\Property(
      *         property="error",
-     *         type="array",
-     *         @OA\Items(
-     *           title="phone_number",
-     *           type="string",
-     *           example="Field 'phone_number' is required"
-     *         )
+     *         type="object",
+     *         ref="#/components/schemas/Validation"
      *       )
      *     )
      *   )
