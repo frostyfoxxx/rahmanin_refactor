@@ -2,13 +2,15 @@
 
 namespace App\ReturnData;
 
+use Illuminate\Http\JsonResponse;
+
 class AuthReturnData
 {
     /**
      * Метод, возвращающий ответ, если пользователь уже зарегистрирован
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnUserAlreadyRegistered()
+    public function returnUserAlreadyRegistered() : JsonResponse
     {
         return response()->json([
             'code' => 422,
@@ -20,14 +22,16 @@ class AuthReturnData
      * Метод, возвращающий ответ при регистрации пользователя
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnUserCreated() {
+    public function returnUserCreated() : JsonResponse
+    {
         return response()->json([
             'code' => 201,
             'message' => 'Users has been created'
         ], 201);
     }
 
-    public function returnUserNotRegister() {
+    public function returnUserNotRegister() : JsonResponse
+    {
         return response()->json([
             'code' => 401,
             'message' => 'This user not register'
@@ -39,7 +43,7 @@ class AuthReturnData
      * @param array $user - Массив с данными
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnUserLogged(array $user)
+    public function returnUserLogged(array $user) : JsonResponse
     {
         return response()->json([
             'code' => 200,

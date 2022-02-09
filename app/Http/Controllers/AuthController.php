@@ -34,7 +34,7 @@ class AuthController extends Controller
      *   summary="Регистрация",
      *   description="Регистрация по номеру телефона, почте и паролю",
      *   operationId="signUp",
-     *   tags={"auth"},
+     *   tags={"Регистрация и авторизация"},
      *   @OA\RequestBody(
      *     required=true,
      *     description="Данные для регистрации пользователя",
@@ -138,6 +138,95 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *   path="/api/auth",
+     *   summary="Авторизация",
+     *   description="Авторизация по номеру телефона и паролю",
+     *   operationId="signIn",
+     *   tags={"Регистрация и авторизация"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     description="Данные для авторизации пользователя",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="phone_number",
+     *         type="string",
+     *         example="89965041812"
+     *       ),
+     *       @OA\Property(
+     *         property="password",
+     *         type="string",
+     *         example="testpassword"
+     *       )
+     *     ),
+     *   ),
+     *   @OA\Response(
+     *     response="200",
+     *     description="Успешная авторизация",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="code",
+     *         type="int",
+     *         example=200
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="Authentication successful"
+     *       ),
+     *       @OA\Property(
+     *         property="role",
+     *         type="string",
+     *         example="student"
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response="401",
+     *     description="Этот пользователь не зарегистрирован",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="code",
+     *         type="int",
+     *         example=401
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="This user not register"
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response="422",
+     *     description="Ошибки валидации",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="code",
+     *         type="int",
+     *         example=422
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="Validation error"
+     *       ),
+     *       @OA\Property(
+     *         property="error",
+     *         type="array",
+     *         @OA\Items(
+     *           title="phone_number",
+     *           type="string",
+     *           example="Field 'phone_number' is required"
+     *         )
+     *       )
+     *     )
+     *   )
+     * )
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function signIn(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request, $this->fields);
