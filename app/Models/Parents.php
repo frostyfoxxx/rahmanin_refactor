@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Parent extends Model
+class Parents extends Model
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class Parent extends Model
     public function checkExistsManyParents()
     {
         $user = auth('sanctum')->user()->id;
-        
+
         if(count(Parent::where('users_id', $user)->get()) === 1 ) {
             return true;
         } else {

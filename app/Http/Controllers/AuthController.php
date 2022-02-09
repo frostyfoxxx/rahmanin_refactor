@@ -28,6 +28,97 @@ class AuthController extends Controller
         $this->authReturnData = $authReturnData;
     }
 
+    /**
+     * @OA\Post(
+     *   path="/api/signup",
+     *   summary="Регистрация",
+     *   description="Регистрация по номеру телефона, почте и паролю",
+     *   operationId="signUp",
+     *   tags={"auth"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     description="Данные для регистрации пользователя",
+     *     @OA\JsonContent(
+     *       required={"phone_number", "email", "password"},
+     *       @OA\Property(
+     *         property="phone_number",
+     *         type="string",
+     *         example="8996501812"
+     *       ),
+     *       @OA\Property(
+     *         property="email",
+     *         type="string",
+     *         format="email",
+     *         example="ivanov3@mail.ru"
+     *       ),
+     *       @OA\Property(
+     *         property="password",
+     *         type="string",
+     *         example="testpassword"
+     *       )
+     *     ),
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Пользователь создан",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="code",
+     *         type="int",
+     *         example="201"
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="User has been created"
+     *       ),
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Этот пользователь уже зарегистрирован",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="code",
+     *         type="int",
+     *         example="200"
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="The user is already registered"
+     *       ),
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=422,
+     *     description="Ошибки валидации",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="code",
+     *         type="int",
+     *         example="422"
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="Validation error"
+     *       ),
+     *       @OA\Property(
+     *         property="error",
+     *         type="array",
+     *         @OA\Items(
+     *           title="phone_number",
+     *           type="string",
+     *           example="Field 'phone_number' is required"
+     *         )
+     *       )
+     *     )
+     *   )
+     * )
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function signUp(Request $request) : JsonResponse
     {
         $validated = $this->validatorService->globalValidation($request, $this->fields); // Метод глобальной валидации входящих данных

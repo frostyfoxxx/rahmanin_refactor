@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Parent;
 use App\Providers\DatabaseProvider;
 use App\Providers\ValidatorProvider;
 use Illuminate\Http\Request;
@@ -18,7 +17,7 @@ class ParentController extends Controller
         }
 
         $countParent = count($request->all());
-        
+
         // TODO: Доделать добавление родителей.
     }
 }
