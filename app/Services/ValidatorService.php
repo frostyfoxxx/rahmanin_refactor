@@ -5,6 +5,26 @@ namespace App\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Schema(
+ *   schema="Validation",
+ *   type="object",
+ *   @OA\Property(
+ *     property="field1",
+ *     type="array",
+ *     @OA\Items(
+ *       example="The field1 field is required"
+ *     )
+ *   ),
+ *   @OA\Property(
+ *     property="field2",
+ *     type="array",
+ *     @OA\Items(
+ *       example="The field2 must be a number."
+ *     )
+ *   ),
+ * )
+ */
 class ValidatorService
 {
 
