@@ -31,3 +31,6 @@ RUN useradd -u 1000 -ms /bin/bash -g www www
 
 RUN mkdir -p /home/www/.composer && \
     chown -R www:www /home/www
+
+USER www
+WORKDIR /var/www/diplom
