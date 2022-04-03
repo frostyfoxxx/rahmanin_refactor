@@ -49,6 +49,7 @@ class StudentReturnData
     }
 
     /**
+     * Метод в
      * @param string $message
      * @param JsonResource $data
      * @param array $custom

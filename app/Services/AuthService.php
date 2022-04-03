@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Roles;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,9 +15,10 @@ class AuthService
     /**
      * Проверка на существования пользователя с такими данными
      * @param Request $request - объект с данными
-     * @return bool|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     * @return bool|Builder|Model|object|null
      */
-    public function checkCreateUser(Request $request) {
+    public function checkCreateUser(Request $request)
+    {
         if ($request->input('email') === null) {
             return Auth::attempt($request->all());
         } else {
@@ -27,11 +30,12 @@ class AuthService
     }
 
     /**
-     * Регистрация пользоватея
+     * Регистрация пользователя
      * @param Request $request - объект с данными
      * @return bool
      */
-    public function signUp(Request $request) {
+    public function signUp(Request $request)
+    {
         $user = User::create([
             'phone_number' => $request->input('phone_number'),
             'email' => $request->input('email'),
@@ -49,7 +53,8 @@ class AuthService
      * Авторизация пользователя и создание куки-файла
      * @return array
      */
-    public function signIn() {
+    public function signIn()
+    {
         $user = Auth::user();
         $role = auth('sanctum')->user()->roles[0]->slug;
         $token = $user->createToken('token')->plainTextToken;
