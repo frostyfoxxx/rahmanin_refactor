@@ -3,14 +3,15 @@
 namespace App\ReturnData;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReturnData
 {
     /**
      * Метод возвращающий JSON при ошибках валидации
-     * @param $code
-     * @param $message
-     * @param $validatorObject
+     * @param $code - Http-код ответа
+     * @param $message - Сообщение ответа
+     * @param $validatorObject - массив ошибок валидации
      * @return JsonResponse
      */
     public function returnValidationError($code, $message, $validatorObject): JsonResponse
@@ -33,6 +34,22 @@ class ReturnData
         return response()->json([
             'code' => $code,
             'message' => $message
+        ], $code);
+    }
+
+    /**
+     * Метод, возвращающий JSON-представление с массивом данных
+     * @param int $code - Http-код ответа
+     * @param string $message - Сообщение ответа
+     * @param JsonResource $data - JsonResource представление данных
+     * @return JsonResponse
+     */
+    public function returnData(int $code, string $message, JsonResource $data): JsonResponse
+    {
+        return response()->json([
+            'code' => $code,
+            'message' => $message,
+            'data' => $data
         ], $code);
     }
 

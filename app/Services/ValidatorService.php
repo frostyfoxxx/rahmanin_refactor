@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Validator;
 class ValidatorService
 {
 
-    private static $rules = [
+    private static array $rules = [
         // Регистрация и Авторизация
         'phone_number' => ['required', 'numeric', 'digits:11'],
         'email' => ['email', 'unique:users,email'],
@@ -59,8 +59,8 @@ class ValidatorService
     ];
 
     /**
-     * @param Request $req - Объект с приходящими данными
-     * @param array $fields - массив с полями
+     * @param Request $req
+     * @param array $fields
      * @return \Illuminate\Contracts\Validation\Validator
      */
     public function globalValidation(Request $req, array $fields)
