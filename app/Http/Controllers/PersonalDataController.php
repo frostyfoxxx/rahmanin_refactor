@@ -14,18 +14,16 @@ use Illuminate\Http\Request;
 
 class PersonalDataController extends Controller
 {
-    private $personalService, $validatorService, $personalReturnData, $returnData;
+    private $personalService, $validatorService, $returnData;
     private $fields = ['phone', 'first_name', 'middle_name', 'last_name'];
 
     public function __construct(
         ValidatorService $validatorService,
         PersonalService $personalService,
-        StudentReturnData $personalReturnData,
         ReturnData $returnData
     ) {
         $this->personalService = $personalService;
         $this->validatorService = $validatorService;
-        $this->personalReturnData = $personalReturnData;
         $this->returnData = $returnData;
     }
 
@@ -226,7 +224,7 @@ class PersonalDataController extends Controller
 
             $this->personalService->addPersonalData($request);
 
-            return $this->personalReturnData->returnCreateData('Personal data has been created');
+            return $this->returnData->returnDefaultData(201, 'Personal data has been created');
         } catch (ValidatorException $exc) {
             return $this->returnData->returnValidationError(
                 $exc->getCode(),
