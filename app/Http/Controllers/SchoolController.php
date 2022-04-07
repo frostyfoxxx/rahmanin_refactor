@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ReturnDataException;
+use App\Exceptions\ValidatorException;
 use App\Http\Resources\SchoolResource;
-use App\Models\School;
-use App\ReturnData\StudentReturnData;
+use App\ReturnData\ReturnData;
 use App\ReturnData\ValidatorErrorReturnData;
 use App\Services\SchoolService;
 use App\Services\ValidatorService;
@@ -13,65 +14,83 @@ use Illuminate\Http\Request;
 
 class SchoolController extends Controller
 {
-    private $validatorService, $schoolService, $schoolReturnData, $validatorErrorReturnData;
-    private $fields = ['number_of_classes', 'number_of_certificate', 'year_of_ending', 'school_name'];
+    private $validatorService, $schoolService, $schoolReturnData;
+    private array $fields = ['number_of_classes', 'number_of_certificate', 'year_of_ending', 'school_name'];
 
     public function __construct(
         ValidatorService $validatorService,
         SchoolService $schoolService,
-        StudentReturnData $schoolReturnData,
-        ValidatorErrorReturnData $validatorErrorReturnData
-    )
-    {
+        ReturnData $schoolReturnData
+    ) {
         $this->validatorService = $validatorService;
         $this->schoolService = $schoolService;
         $this->schoolReturnData = $schoolReturnData;
-        $this->validatorErrorReturnData = $validatorErrorReturnData;
     }
 
-    public function getSchool() : JsonResponse
+    public function getSchool(): JsonResponse
     {
-        if (!$this->schoolService->checkSchoolData()) {
-            return $this->schoolReturnData->returnWithoutData('School Data not found');
+        try {
+            if (!$this->schoolService->checkSchoolData()) {
+                throw new ReturnDataException('School Data not found', 300);
+            }
+            $data = $this->schoolService->getSchoolData();
+            $collection = SchoolResource::collection($data);
+
+            return $this->schoolReturnData->returnData(200, 'School Data found', $collection);
+        } catch (ReturnDataException $exc) {
+            return $this->schoolReturnData->returnDefaultData($exc->getCode(), $exc->getMessage());
         }
-
-        $data = $this->schoolService->getSchoolData();
-        $collection = SchoolResource::collection($data);
-
-        return $this->schoolReturnData->returnData('School Data found', $collection);
     }
 
-    public function createSchoolData(Request $request) : JsonResponse
+    public function createSchoolData(Request $request): JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request, $this->fields);
+        try {
+            $validated = $this->validatorService->globalValidation($request, $this->fields);
+            if ($validated->fails()) {
+                throw new ValidatorException('Validation Error', 422, $validated);
+            }
 
-        if ($validated->fails()) {
-            return $this->validatorErrorReturnData->returnData($validated);
+            if ($this->schoolService->checkSchoolData()) {
+                throw new ReturnDataException('School Data already exists', 300);
+            }
+
+            $this->schoolService->createSchoolData($request);
+            return $this->schoolReturnData->returnDefaultData(200, 'School data has been created.');
+        } catch (ValidatorException $exception) {
+            return $this->schoolReturnData->returnValidationError(
+                $exception->getCode(),
+                $exception->getMessage(),
+                $exception->getValidatorObject()
+            );
+        } catch (ReturnDataException $exception) {
+            return $this->schoolReturnData->returnDefaultData($exception->getCode(), $exception->getMessage());
         }
-
-        if ($this->schoolService->checkSchoolData()) {
-            return $this->schoolReturnData->returnWithoutData('School Data already exists');
-        }
-
-        $this->schoolService->createSchoolData($request);
-
-        return $this->schoolReturnData->returnCreateData('School data has been created.');
     }
 
-    public function updateSchoolData(Request $request) : JsonResponse
+    public function updateSchoolData(Request $request): JsonResponse
     {
-        $validated = $this->validatorService->globalValidation($request, $this->fields);
+        try {
+            $validated = $this->validatorService->globalValidation($request, $this->fields);
 
-        if ($validated->fails()) {
-            return $this->validatorErrorReturnData->returnData($validated);
+            if ($validated->fails()) {
+                throw new ValidatorException('Validation Error', 422, $validated);
+            }
+
+            if (!$this->schoolService->checkSchoolData()) {
+                throw new ReturnDataException('School Data not found', 300);
+            }
+
+            $this->schoolService->updateSchoolData($request);
+
+            return $this->schoolReturnData->returnDefaultData(200, 'Schools data has been updated');
+        } catch (ValidatorException $exc) {
+            return $this->schoolReturnData->returnValidationError(
+                $exc->getCode(),
+                $exc->getMessage(),
+                $exc->getValidatorObject()
+            );
+        } catch (ReturnDataException $exc) {
+            return $this->schoolReturnData->returnDefaultData($exc->getCode(), $exc->getMessage());
         }
-
-        if (!$this->schoolService->checkSchoolData()) {
-            return $this->schoolReturnData->returnWithoutData('School Data not found');
-        }
-
-        $this->schoolService->updateSchoolData($request);
-
-        return $this->schoolReturnData->returnWithoutData('Schools data has been updated');
     }
 }
