@@ -9,7 +9,7 @@ class SignUpRequest extends ApiRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'phone_number' => ['required', 'numeric', 'digits:11'],

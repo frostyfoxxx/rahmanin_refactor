@@ -3,16 +3,22 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Request;
 
+/**
+ * Класс-ресурс для вывода оценок
+ * @property string $subject Название предметов
+ * @property int $appraisal Оценки за предмет
+ */
 class AppraisalResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
             'subject' => $this->subject,

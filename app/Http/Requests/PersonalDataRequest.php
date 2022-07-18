@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 /**
+ * Класс-реквест для персональных данных
  * @property int $phone - Номер телефона
  * @property string $first_name - Имя
  * @property string $middle_name - Отчество
