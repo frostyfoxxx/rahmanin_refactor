@@ -2,32 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ReturnDataException;
-use App\Exceptions\ValidatorException;
+use App\Exceptions\ApiException;
+use App\Http\Requests\PersonalDataRequest;
 use App\Http\Resources\PersonalsDataResource;
-use App\ReturnData\ReturnData;
-use App\ReturnData\StudentReturnData;
-use App\Services\PersonalService;
-use App\Services\ValidatorService;
+use App\Models\PersonalsData;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PersonalDataController extends Controller
 {
-    private $personalService, $validatorService, $returnData;
-    private $fields = ['phone', 'first_name', 'middle_name', 'last_name'];
-
-    public function __construct(
-        ValidatorService $validatorService,
-        PersonalService $personalService,
-        ReturnData $returnData
-    ) {
-        $this->personalService = $personalService;
-        $this->validatorService = $validatorService;
-        $this->returnData = $returnData;
-    }
-
     /**
+     * Метод получения персональных данных
      * @OA\Get(
      *   path="/api/user/personal",
      *   summary="Получение персональных данных",
@@ -99,26 +84,19 @@ class PersonalDataController extends Controller
      *   ),
      * )
      * @return JsonResponse
-     * @throw ReturnDataException
      */
     public function getPersonalData(): JsonResponse
     {
-        try {
-            /** Проверка на существование данных [false - нет, true - есть] */
-            if (!$this->personalService->checkPersonalData()) {
-                throw new ReturnDataException('Personal Data not found', 300);
-            }
-
-            $data = $this->personalService->getPersonalData();
-            $collection = PersonalsDataResource::collection($data);
-
-            return $this->returnData->returnData(200, 'Personal Data found', $collection);
-        } catch (ReturnDataException $dataException) {
-            return $this->returnData->returnDefaultData($dataException->getCode(), $dataException->getMessage());
-        }
+        $foundedData = Auth::user()->personalData;
+        return response()->json([
+            'code' => 200,
+            'message' => 'Personal Data found',
+            'data' => PersonalsDataResource::collection($foundedData)
+        ])->setStatusCode(200);
     }
 
     /**
+     * Метод создания персональных данных
      * @OA\Post(
      *   path="/api/user/personal",
      *   summary="Добавление персональных данных",
@@ -206,37 +184,28 @@ class PersonalDataController extends Controller
      *     )
      *   ),
      * )
-     * @param Request $request
+     * @param PersonalDataRequest $request
      * @return JsonResponse
      */
-    public function postPersonalData(Request $request): JsonResponse
+    public function postPersonalData(PersonalDataRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            if ($this->personalService->checkPersonalData()) {
-                throw new ReturnDataException('Personal Data already exists', 300);
-            }
-
-            $this->personalService->addPersonalData($request);
-
-            return $this->returnData->returnDefaultData(201, 'Personal data has been created');
-        } catch (ValidatorException $exc) {
-            return $this->returnData->returnValidationError(
-                $exc->getCode(),
-                $exc->getMessage(),
-                $exc->getValidatorObject()
-            );
-        } catch (ReturnDataException $exc) {
-            return $this->returnData->returnDefaultData($exc->getCode(), $exc->getMessage());
+        if (Auth::user()->personalData) {
+            throw new ApiException(300, 'Personal Data already exists');
         }
+
+        $personalData = PersonalsData::make($request->all());
+        $personalData->users_id = Auth::user()->id;
+        $personalData->save();
+
+        return response()->json([
+            'code' => 201,
+            'message' => 'Personal Data has been created'
+        ])->setStatusCode(201);
     }
 
     /**
+     * Метод обновления персональных данных
+     * TODO: Обновить swagger-doc
      * @OA\Patch(
      *   path="/api/user/personal",
      *   summary="Изменение персональных данных",
@@ -324,32 +293,30 @@ class PersonalDataController extends Controller
      *     )
      *   ),
      * )
-     * @param Request $request
+     * @param PersonalDataRequest $request
      * @return JsonResponse
      */
-    public function patchPersonalData(Request $request): JsonResponse
+    public function patchPersonalData(PersonalDataRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            if (!$this->personalService->checkPersonalData()) {
-                throw new ReturnDataException('Personal data has not been created yet', 300);
-            }
-            $this->personalService->patchPersonalData($request);
-
-            return $this->returnData->returnDefaultData(200, 'Personal data has been updated');
-        } catch (ValidatorException $exc) {
-            return $this->returnData->returnValidationError(
-                $exc->getCode(),
-                $exc->getMessage(),
-                $exc->getValidatorObject()
-            );
-        } catch (ReturnDataException $exc) {
-            return $this->returnData->returnDefaultData($exc->getCode(), $exc->getMessage());
+        /** @var PersonalsData $personalData */
+        $personalData = Auth::user()->personalData;
+        if (!$personalData) {
+            throw new ApiException(300, 'Personal data not found for updating');
         }
+
+        $personalData->first_name = $request->first_name;
+        $personalData->middle_name = $request->middle_name;
+        $personalData->last_name = $request->last_name;
+        $personalData->phone = $request->phone;
+        $personalData->orphan = $request->orphan;
+        $personalData->childhood_disabled = $request->childhood_disabled;
+        $personalData->the_large_family = $request->the_large_family;
+        $personalData->hostel_for_students = $request->hostel_for_students;
+        $personalData->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Personal data has been updated'
+        ], 200);
     }
 }

@@ -2,31 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ReturnDataException;
-use App\Exceptions\ValidatorException;
-use App\ReturnData\ReturnData;
+use App\Exceptions\ApiException;
+use App\Http\Requests\SignInRequest;
+use App\Http\Requests\SignUpRequest;
+use App\Models\Roles;
+use App\Models\User;
 use App\Services\AuthService;
 use App\Services\ValidatorService;
+use http\Client\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    private AuthService $authService;
-    private ValidatorService $validatorService;
-    private ReturnData $returnData;
-    private array $fields = ['phone_number', 'email', 'password'];
-
-    public function __construct(
-        AuthService $authService,
-        ValidatorService $validatorService,
-        ReturnData $returnData
-    ) {
-        $this->authService = $authService;
-        $this->validatorService = $validatorService;
-        $this->returnData = $returnData;
-    }
-
     /**
      * @OA\Post(
      *   path="/api/signup",
@@ -111,43 +100,33 @@ class AuthController extends Controller
      *     )
      *   )
      * )
-     * @param Request $request
+     * @param SignUpRequest $request
      * @return JsonResponse
-     * @throw ValidatorException
-     * @throw ReturnDataException
      */
-    public function signUp(Request $request): JsonResponse
+    public function signUp(SignUpRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation(
-                $request,
-                $this->fields
-            ); // Метод глобальной валидации входящих данных
-
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            if ($this->authService->checkCreateUser($request)) {
-                throw new ReturnDataException('This user already registered', 422);
-            }
-
-            $user = $this->authService->signUp($request);
-
-            if (!$user) {
-                throw new ReturnDataException('Error!', 422);
-            }
-
-            return $this->returnData->returnDefaultData(201, 'User has been created');
-        } catch (ValidatorException $exception) {
-            return $this->returnData->returnValidationError(
-                $exception->getCode(),
-                $exception->getMessage(),
-                $exception->getValidatorObject()
-            );
-        } catch (ReturnDataException $exc) {
-            return $this->returnData->returnDefaultData($exc->getCode(), $exc->getMessage());
+        if (User::query()
+            ->where('phone_number', '=', $request->input('phone_number'))
+            ->orWhere('email', '=' . $request->input('email'))
+            ->first()
+        ) {
+            throw new ApiException(422, 'This user already registered');
         }
+
+        $user = User::create([
+                'phone_number' => $request->input('phone_number'),
+                'email' => $request->input('email'),
+                'password' => Hash::make($request->input('password')),
+                'stuff' => false
+            ]
+        );
+        $user->roles()->attach(Roles::where('slug', 'student')->first());
+        $user->save();
+
+        return response()->json([
+            'code' => 201,
+            'message' => "Users has been created"
+        ])->setStatusCode(201);
     }
 
     /**
@@ -232,33 +211,39 @@ class AuthController extends Controller
      *     )
      *   )
      * )
+     * @param SignInRequest $request
+     * @return JsonResponse
+     */
+    public function signIn(SignInRequest $request): JsonResponse
+    {
+        if (!Auth::attempt($request->all())) {
+            throw new ApiException(422, 'Invalid login/password');
+        }
+
+        $user = Auth::user();
+        $role = $user->roles[0]->slug;
+        $token = $user->createToken('token')->plainTextToken;
+        $cookie = cookie('jwt', $token, 60 * 24 * 7); // 7 day;
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Authentication successful',
+            'role' => $role
+        ])->withCookie($cookie)->setStatusCode(200);
+    }
+
+    /**
+     *  TODO: Написать swagger-doc
      * @param Request $request
      * @return JsonResponse
      */
-    public function signIn(Request $request): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-
-            if ($validated->fails()) {
-                throw new ValidatorException('ValidationError', 422, $validated);
-            }
-
-            if (!$this->authService->checkCreateUser($request)) {
-                throw new ReturnDataException('Invalid login/password', 422);
-            }
-
-            $user = $this->authService->signIn();
-
-            return $this->returnData->returnUserLogged($user);
-        } catch (ValidatorException $exception) {
-            return $this->returnData->returnValidationError(
-                $exception->getCode(),
-                $exception->getMessage(),
-                $exception->getValidatorObject()
-            );
-        } catch (ReturnDataException $exception) {
-            return $this->returnData->returnDefaultData($exception->getCode(), $exception->getMessage());
-        }
+        $user = $request->user();
+        $user->currentAccessToken()->detele();
+        return response()->json([
+            'code' => 200,
+            'message' => 'Logout success'
+        ], 200);
     }
 }

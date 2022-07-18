@@ -26,7 +26,6 @@ class PersonalsDataResource extends JsonResource
             'childhood_disabled' => $this->childhood_disabled,
             'the_large_family' => $this->the_large_family,
             'hostel_for_students' => $this->hostel_for_students,
-
         ];
     }
 }

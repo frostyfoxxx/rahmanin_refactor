@@ -4,10 +4,9 @@ namespace App\Models;
 
 use App\Traits\HasRolesAndPermissions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -46,21 +45,29 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    /*
-      Блок инициализации связей для EloquentORM
-    */
-
-    public function school()
+    /**
+     * Связь с данными о школе
+     * @return HasOne
+     */
+    public function schoolData(): HasOne
     {
       return $this->hasOne(School::class);
     }
 
-    public function personalData()
+    /**
+     * Связь с персональными данными
+     * @return HasOne
+     */
+    public function personalData(): HasOne
     {
-      return $this->hasOne(PersonalData::class, 'user_id', 'id');
+      return $this->hasOne(PersonalsData::class, 'users_id', 'id');
     }
 
-    public function passport()
+    /**
+     * Связь с данными паспорта
+     * @return HasOne
+     */
+    public function passportData(): HasOne
     {
       return $this->hasOne(Passport::class);
     }
