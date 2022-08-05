@@ -15,15 +15,15 @@ class CreatePersonalsDataTable extends Migration
     {
         Schema::create('personals_data', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name');
-            $table->string('middle_name');
-            $table->string('last_name');
-            $table->string('phone');
-            $table->string('orphan')->nullable();
-            $table->string('childhood_disabled')->nullable();
-            $table->string('the_large_family')->nullable();
-            $table->string('hostel_for_students')->nullable();
-            $table->unsignedBigInteger('users_id');
+            $table->string('first_name')->comment('Имя');
+            $table->string('middle_name')->comment('Отчество');
+            $table->string('last_name')->comment('Фамилия');
+            $table->string('phone')->comment('Контактный номер телефона');
+            $table->boolean('orphan')->nullable()->comment('Сирота');
+            $table->boolean('childhood_disabled')->nullable()->comment('Инвалид детства');
+            $table->boolean('the_large_family')->nullable()->comment('Многодетная семья');
+            $table->boolean('hostel_for_students')->nullable()->comment('Нуждаюсь в общежитии');
+            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
             $table->foreign('users_id')->references('id')->on('users');
             $table->timestamps();
         });

@@ -5,7 +5,7 @@ services:
         image: nginx:stable-alpine
         container_name: diplom-nginx
         ports:
-            - "8088:80"
+            - "8000:80"
         links:
             - fpm
         volumes:

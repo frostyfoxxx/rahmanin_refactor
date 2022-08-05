@@ -23,6 +23,7 @@ class PassportDataRequest extends ApiRequest
      */
     public function rules(): array
     {
+        // TODO: Добавить условие required_if = lack_of_citizenship false
         return [
             'series' => ['required', 'numeric'],
             'number' => ['required', 'numeric'],

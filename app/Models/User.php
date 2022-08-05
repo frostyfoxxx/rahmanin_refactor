@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasRolesAndPermissions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -70,6 +71,11 @@ class User extends Authenticatable
     public function passportData(): HasOne
     {
       return $this->hasOne(Passport::class);
+    }
+
+    public function parents(): HasMany
+    {
+        return $this->hasMany(Parents::class);
     }
 
 }

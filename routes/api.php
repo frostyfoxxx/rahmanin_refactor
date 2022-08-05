@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [AuthController::class, 'signUp']); // Регистрация
 Route::post('/auth', [AuthController::class, 'signIn']); // Аутентификация
-
+// TODO: Добавить группировку роута по префиксам и правам. Сделать валидацию прав
 Route::group(['middleware' => ['auth:sanctum']], function () { // Методы аутентифицированного пользователя
     Route::post('/logout', [AuthController::class, 'logout']); // Выход
     Route::get('/user/personal', [PersonalDataController::class, 'getPersonalData']); // Получение персональных данных
@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () { // Методы �
     Route::patch('/user/school', [SchoolController::class, 'updateSchoolData']); // Обновление данных о школьном образовании
     Route::get('/user/stuff', [AppraisalController::class, 'getUserAppraisal']); // Получение данных о предметах аттестата и оценок по ним
     Route::post('user/stuff', [AppraisalController::class, 'createUserAppraisal']); // Добавление данных о предметах аттестата и оценок по ним
+    Route::get('user/parents', [ParentController::class, 'getParentInformation']); // Получение информации о родителях
     Route::post('/user/parents', [ParentController::class, 'createParent']); // Добавление родителей
 });
 

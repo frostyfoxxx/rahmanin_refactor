@@ -17,7 +17,7 @@ class SchoolController extends Controller
      */
     public function getSchool(): JsonResponse
     {
-        $data = Auth::user()->schoolData;
+        $data = Auth::user()->schoolData ? Auth::user()->schoolData : [];
         return response()->json([
             'code' => 200,
             'message' => 'School Data found',

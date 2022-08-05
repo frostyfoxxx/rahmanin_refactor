@@ -87,7 +87,7 @@ class PersonalDataController extends Controller
      */
     public function getPersonalData(): JsonResponse
     {
-        $foundedData = Auth::user()->personalData;
+        $foundedData = Auth::user()->personalData ? Auth::user()->personalData : [];
         return response()->json([
             'code' => 200,
             'message' => 'Personal Data found',
