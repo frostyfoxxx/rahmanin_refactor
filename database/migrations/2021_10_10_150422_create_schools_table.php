@@ -15,14 +15,16 @@ class CreateSchoolsTable extends Migration
     {
         Schema::create('schools', function (Blueprint $table) {
             $table->id();
-            $table->string('school_name');
-            $table->integer('number_of_classes');
-            $table->integer('year_of_ending');
-            $table->bigInteger('number_of_certificate');
-            $table->integer('number_of_photo')->nullable();
-            $table->string('version_of_the_certificate')->nullable();
-            $table->float('middlemark')->nullable();
-            $table->unsignedBigInteger('users_id');
+            $table->string('school_name')->comment('Наименование школы');
+            $table->integer('number_of_classes')->comment('Количество оконченных классов');
+            $table->integer('year_of_ending')->comment('Год окончания');
+            $table->bigInteger('number_of_certificate')->comment('Номер аттестата');
+            $table->integer('number_of_photo')->nullable()->comment('Количество фотографий');
+            $table->string('version_of_the_certificate')->nullable()->comment(
+                'Версия сертификата: Оригинал или копия'
+            );
+            $table->float('middlemark')->nullable()->comment('Средний балл');
+            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
             $table->foreign('users_id')->references('id')->on('users');
             $table->timestamps();
         });

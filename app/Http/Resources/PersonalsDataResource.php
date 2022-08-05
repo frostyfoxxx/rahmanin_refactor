@@ -5,17 +5,27 @@ namespace App\Http\Resources;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JsonSerializable;
 
+/**
+ * Класс ресурс для персональных данных
+ * @property int $phone - Номер телефона
+ * @property string $first_name - Имя
+ * @property string $middle_name - Отчество
+ * @property string $last_name - Фамилия
+ * @property bool $orphan - Сирота
+ * @property bool $childhood_disabled - Инвалид детства
+ * @property bool $the_large_family - Многодетная семья
+ * @property bool $hostel_for_students - Нуждается в общежитии
+ */
 class PersonalsDataResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
      * @param Request $request
-     * @return array|Arrayable|JsonSerializable
+     * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
             'first_name' => $this->first_name,
@@ -26,7 +36,6 @@ class PersonalsDataResource extends JsonResource
             'childhood_disabled' => $this->childhood_disabled,
             'the_large_family' => $this->the_large_family,
             'hostel_for_students' => $this->hostel_for_students,
-
         ];
     }
 }

@@ -2,95 +2,71 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ReturnDataException;
-use App\Exceptions\ValidatorException;
+use App\Exceptions\ApiException;
+use App\Http\Requests\SchoolRequest;
 use App\Http\Resources\SchoolResource;
-use App\ReturnData\ReturnData;
-use App\ReturnData\ValidatorErrorReturnData;
-use App\Services\SchoolService;
-use App\Services\ValidatorService;
+use App\Models\School;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
 {
-    private $validatorService, $schoolService, $schoolReturnData;
-    private array $fields = ['number_of_classes', 'number_of_certificate', 'year_of_ending', 'school_name'];
-
-    public function __construct(
-        ValidatorService $validatorService,
-        SchoolService $schoolService,
-        ReturnData $schoolReturnData
-    ) {
-        $this->validatorService = $validatorService;
-        $this->schoolService = $schoolService;
-        $this->schoolReturnData = $schoolReturnData;
-    }
-
+    /**
+     * Метод получения данных о школе
+     * @return JsonResponse
+     */
     public function getSchool(): JsonResponse
     {
-        try {
-            if (!$this->schoolService->checkSchoolData()) {
-                throw new ReturnDataException('School Data not found', 300);
-            }
-            $data = $this->schoolService->getSchoolData();
-            $collection = SchoolResource::collection($data);
-
-            return $this->schoolReturnData->returnData(200, 'School Data found', $collection);
-        } catch (ReturnDataException $exc) {
-            return $this->schoolReturnData->returnDefaultData($exc->getCode(), $exc->getMessage());
-        }
+        $data = Auth::user()->schoolData ? Auth::user()->schoolData : [];
+        return response()->json([
+            'code' => 200,
+            'message' => 'School Data found',
+            'data' => SchoolResource::collection($data)
+        ])->setStatusCode(200);
     }
 
-    public function createSchoolData(Request $request): JsonResponse
+    /**
+     * @param SchoolRequest $request
+     * @return JsonResponse
+     */
+    public function createSchoolData(SchoolRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            if ($this->schoolService->checkSchoolData()) {
-                throw new ReturnDataException('School Data already exists', 300);
-            }
-
-            $this->schoolService->createSchoolData($request);
-            return $this->schoolReturnData->returnDefaultData(200, 'School data has been created.');
-        } catch (ValidatorException $exception) {
-            return $this->schoolReturnData->returnValidationError(
-                $exception->getCode(),
-                $exception->getMessage(),
-                $exception->getValidatorObject()
-            );
-        } catch (ReturnDataException $exception) {
-            return $this->schoolReturnData->returnDefaultData($exception->getCode(), $exception->getMessage());
+        if (Auth::user()->schoolData) {
+            throw  new ApiException(300, 'School data already exists');
         }
+
+        $schoolData = School::make($request->all());
+        $schoolData->user_id = Auth::user()->id;
+        $schoolData->save();
+
+        return response()->json([
+            'code' => 201,
+            'message' => 'School data created success'
+        ])->setStatusCode(201);
     }
 
-    public function updateSchoolData(Request $request): JsonResponse
+    /**
+     * Запрос на изменение данных о школе
+     * @param SchoolRequest $request
+     * @return JsonResponse
+     */
+    public function updateSchoolData(SchoolRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            if (!$this->schoolService->checkSchoolData()) {
-                throw new ReturnDataException('School Data not found', 300);
-            }
-
-            $this->schoolService->updateSchoolData($request);
-
-            return $this->schoolReturnData->returnDefaultData(200, 'Schools data has been updated');
-        } catch (ValidatorException $exc) {
-            return $this->schoolReturnData->returnValidationError(
-                $exc->getCode(),
-                $exc->getMessage(),
-                $exc->getValidatorObject()
-            );
-        } catch (ReturnDataException $exc) {
-            return $this->schoolReturnData->returnDefaultData($exc->getCode(), $exc->getMessage());
+        /** @var School $schoolData */
+        $schoolData = Auth::user()->schoolData;
+        if (!$schoolData) {
+            throw new ApiException(300, 'School data not found for updating');
         }
+
+        $schoolData->school_name = $request->school_name;
+        $schoolData->number_of_classes = $request->number_of_classes;
+        $schoolData->year_of_ending = $request->year_of_ending;
+        $schoolData->number_of_certificate = $request->number_of_certificate;
+        $schoolData->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'School Data has been updated'
+        ])->setStatusCode(200);
     }
 }

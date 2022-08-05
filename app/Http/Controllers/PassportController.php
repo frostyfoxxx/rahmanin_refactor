@@ -2,99 +2,78 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ReturnDataException;
-use App\Exceptions\ValidatorException;
+use App\Exceptions\ApiException;
+use App\Http\Requests\PassportDataRequest;
 use App\Http\Resources\PassportResource;
-use App\ReturnData\ReturnData;
-use App\Services\PassportService;
-use App\Services\ValidatorService;
+use App\Models\Passport;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PassportController extends Controller
 {
-    private $validatorService, $passportService, $returnData;
-    private array $fields = [
-        'series',
-        'number',
-        'date_of_issue',
-        'issued_by',
-        'date_of_birth',
-        'gender',
-        'place_of_birth',
-        'registration_address',
-        'lack_of_citizenship'
-    ];
+// TODO: Сделать swagger-doc
 
-    public function __construct(
-        PassportService $passportService,
-        ValidatorService $validatorService,
-        ReturnData $returnData
-    ) {
-        $this->passportService = $passportService;
-        $this->validatorService = $validatorService;
-        $this->returnData = $returnData;
-    }
-
+    /**
+     * Метод получения паспортных данных
+     * @return JsonResponse
+     */
     public function getPassportData(): JsonResponse
     {
-        try {
-            if (!$this->passportService->checkPassportData()) {
-                throw new ReturnDataException('Passport Data not found', 300);
-            }
-
-            $data = $this->passportService->getPassportData();
-            $collection = PassportResource::collection($data);
-            return $this->returnData->returnData(200, 'Passport Data found', $collection);
-        } catch (ReturnDataException $exception) {
-            return $this->returnData->returnDefaultData($exception->getCode(), $exception->getMessage());
-        }
+        $foundedData = Auth::user()->passportData ? Auth::user()->passportData : [];
+        return response()->json([
+            'code' => 200,
+            'message' => 'Passport Data found',
+            'data' => PassportResource::collection($foundedData)
+        ])->setStatusCode(200);
     }
 
     /**
-     * @throws ValidatorException
+     * Метод создания паспортных данных
+     * @param PassportDataRequest $request
+     * @return JsonResponse
      */
-    public function createPassportData(Request $request): JsonResponse
+    public function createPassportData(PassportDataRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            if ($this->passportService->checkPassportData()) {
-                throw new ReturnDataException('Passport Data already exists', 300);
-            }
-
-            $this->passportService->createPassportData($request);
-
-            return $this->returnData->returnDefaultData(201, 'Passport data has been created');
-        } catch (ValidatorException $exception) {
-            return $this->returnData->returnValidationError(
-                $exception->getCode(),
-                $exception->getMessage(),
-                $exception->getValidatorObject()
-            );
-        } catch (ReturnDataException $exc) {
-            return $this->returnData->returnDefaultData($exc->getCode(), $exc->getMessage());
+        if (Auth::user()->passportData) {
+            throw  new ApiException(300, 'Passport data already exists');
         }
+
+        $passportData = Passport::make($request->all());
+        $passportData->user_id = Auth::user()->id;
+        $passportData->save();
+
+        return response()->json([
+            'code' => 201,
+            'message' => 'Passport data created success'
+        ])->setStatusCode(201);
     }
 
-    public function updatePassportData(Request $request): JsonResponse
+    /**
+     * Метод обновления паспортных данных
+     * @param PassportDataRequest $request
+     * @return JsonResponse
+     */
+    public function updatePassportData(PassportDataRequest $request): JsonResponse
     {
-        try {
-            $validated = $this->validatorService->globalValidation($request, $this->fields);
-
-            if ($validated->fails()) {
-                throw new ValidatorException('Validation Error', 422, $validated);
-            }
-
-            $this->passportService->updatePassportData($request);
-
-            return $this->returnData->returnDefaultData(200,'Passports data has been updated');
-        } catch (ValidatorException $e) {
-            return $this->returnData->returnValidationError($e->getCode(), $e->getMessage(), $e->getValidatorObject());
+        /** @var Passport $passportData */
+        $passportData = Auth::user()->passportData;
+        if (!$passportData) {
+            throw new ApiException(300, 'Passport data not found for updating');
         }
+
+        $passportData->series = $request->series;
+        $passportData->number = $request->number;
+        $passportData->date_of_issue = $request->date_of_issue;
+        $passportData->issued_by = $request->issued_by;
+        $passportData->gender = $request->gender;
+        $passportData->place_of_birth = $request->place_of_birth;
+        $passportData->registration_address = $request->registration_address;
+        $passportData->lack_of_citizenship = $request->lack_of_citizenship;
+        $passportData->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Passport data has been updated'
+        ], 200);
     }
 }

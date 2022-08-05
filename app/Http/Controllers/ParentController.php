@@ -2,22 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Providers\DatabaseProvider;
-use App\Providers\ValidatorProvider;
-use Illuminate\Http\Request;
+use App\Http\Resources\ParentsResource;
+use App\Models\Parents;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class ParentController extends Controller
 {
-    public function createParent(Request $request)
+    /**
+     * Получение данных о родителях
+     * @return JsonResponse
+     */
+    public function getParentInformation(): JsonResponse
     {
-        $validator = ValidatorProvider::globalValidation($request->all());
+        $parents = Auth::user()->parents ? Auth::user()->parents : [];
+        return response()->json([
+            'code' => 200,
+            'message' => 'Parents found',
+            'data' => ParentsResource::collection($parents)
+        ])->setStatusCode(200);
+    }
 
-        if ($validator->fails()) {
-            return ValidatorProvider::errorResponse($validator);
-        }
+    /**
+     * @return void
+     */
+    public function postParents()
+    {
 
-        $countParent = count($request->all());
-
-        // TODO: Доделать добавление родителей.
     }
 }

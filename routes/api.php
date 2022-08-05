@@ -6,7 +6,6 @@ use App\Http\Controllers\ParentController;
 use App\Http\Controllers\PassportController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\SchoolController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,26 +19,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::post('/signup', [AuthController::class, 'signUp']);
-Route::post('/auth', [AuthController::class, 'signIn']);
-
-Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::get('/user/personal', [PersonalDataController::class, 'getPersonalData']);
-    Route::post('/user/personal', [PersonalDataController::class, 'postPersonalData']);
-    Route::patch('/user/personal', [PersonalDataController::class, 'patchPersonalData']);
-    Route::get('user/passport', [PassportController::class, 'getPassportData']);
-    Route::post('/user/passport', [PassportController::class, 'createPassportData']);
-    Route::patch('/user/passport', [PassportController::class, 'updatePassportData']);
-    Route::get('user/school', [SchoolController::class, 'getSchool']);
-    Route::post('/user/school', [SchoolController::class, 'createSchoolData']);
-    Route::patch('/user/school', [SchoolController::class, 'updateSchoolData']);
-    Route::get('/user/stuff', [AppraisalController::class, 'getUserAppraisal']);
-    Route::post('user/stuff', [AppraisalController::class, 'createUserAppraisal']);
-    Route::post('/user/parents', [ParentController::class, 'createParent']);
+Route::post('/signup', [AuthController::class, 'signUp']); // Регистрация
+Route::post('/auth', [AuthController::class, 'signIn']); // Аутентификация
+// TODO: Добавить группировку роута по префиксам и правам. Сделать валидацию прав
+Route::group(['middleware' => ['auth:sanctum']], function () { // Методы аутентифицированного пользователя
+    Route::post('/logout', [AuthController::class, 'logout']); // Выход
+    Route::get('/user/personal', [PersonalDataController::class, 'getPersonalData']); // Получение персональных данных
+    Route::post('/user/personal', [PersonalDataController::class, 'postPersonalData']); // Добавление персональных данных
+    Route::patch('/user/personal', [PersonalDataController::class, 'patchPersonalData']); // Обновление персональных данных
+    Route::get('user/passport', [PassportController::class, 'getPassportData']); // Получение паспортных данных
+    Route::post('/user/passport', [PassportController::class, 'createPassportData']); // Создание паспортных данных
+    Route::patch('/user/passport', [PassportController::class, 'updatePassportData']); // Обновление паспортных данных
+    Route::get('user/school', [SchoolController::class, 'getSchool']); // Получение данных о школьном образовании
+    Route::post('/user/school', [SchoolController::class, 'createSchoolData']); // Добавление данных о школьном образовании
+    Route::patch('/user/school', [SchoolController::class, 'updateSchoolData']); // Обновление данных о школьном образовании
+    Route::get('/user/stuff', [AppraisalController::class, 'getUserAppraisal']); // Получение данных о предметах аттестата и оценок по ним
+    Route::post('user/stuff', [AppraisalController::class, 'createUserAppraisal']); // Добавление данных о предметах аттестата и оценок по ним
+    Route::get('user/parents', [ParentController::class, 'getParentInformation']); // Получение информации о родителях
+    Route::post('/user/parents', [ParentController::class, 'createParent']); // Добавление родителей
 });
 
 

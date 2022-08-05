@@ -15,9 +15,9 @@ class CreateAppraisalsTable extends Migration
     {
         Schema::create('appraisals', function (Blueprint $table) {
             $table->id();
-            $table->string('subject'); 
-            $table->integer('appraisal');
-            $table->unsignedBigInteger('users_id');
+            $table->string('subject')->comment('Предмет');
+            $table->integer('appraisal')->comment('Оценка');
+            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
             $table->foreign('users_id')->references('id')->on('users');
             $table->timestamps();
         });
