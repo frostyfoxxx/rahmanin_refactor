@@ -32,7 +32,7 @@ class Passport extends Model
         'place_of_birth',
         'registration_address',
         'lack_of_citizenship',
-        'users_id'
+        'user_id'
     ];
 
     /**
@@ -41,6 +41,6 @@ class Passport extends Model
      */
     public function users(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class);
     }
 }

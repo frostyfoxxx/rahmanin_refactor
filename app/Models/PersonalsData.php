@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $childhood_disabled - Инвалид детства
  * @property string $the_large_family - Многодетная семья
  * @property string $hostel_for_students - Нуждается в общежитии
- * @property int $users_id Идентификатор пользователя, которому принадлежат данные
+ * @property int $user_id Идентификатор пользователя, которому принадлежат данные
  * @property-read $user
  */
 class PersonalsData extends Model
@@ -31,7 +31,7 @@ class PersonalsData extends Model
         'childhood_disabled',
         'the_large_family',
         'hostel_for_students',
-        'users_id'
+        'user_id'
     ];
 
     /**
@@ -40,7 +40,7 @@ class PersonalsData extends Model
      */
     public function users(): BelongsTo
     {
-        return $this->belongsTo(User::class,'users_id');
+        return $this->belongsTo(User::class,'user_id');
     }
 
 }

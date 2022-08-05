@@ -24,8 +24,8 @@ class CreateSchoolsTable extends Migration
                 'Версия сертификата: Оригинал или копия'
             );
             $table->float('middlemark')->nullable()->comment('Средний балл');
-            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
-            $table->foreign('users_id')->references('id')->on('users');
+            $table->unsignedBigInteger('user_id')->comment('Идентификатор пользователя');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

@@ -19,7 +19,7 @@ class PassportController extends Controller
      */
     public function getPassportData(): JsonResponse
     {
-        $foundedData = Auth::user()->passportData ? Auth::user()->passportData : [];
+        $foundedData = Auth::user()->passportData ? Auth::user()->passportData->all() : [];
         return response()->json([
             'code' => 200,
             'message' => 'Passport Data found',

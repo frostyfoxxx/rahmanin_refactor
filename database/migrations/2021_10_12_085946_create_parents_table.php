@@ -19,8 +19,8 @@ class CreateParentsTable extends Migration
             $table->string('name')->comment('Имя');
             $table->string('patronymic')->comment('Отчество');
             $table->string('phone')->comment('Номер телефона');
-            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
-            $table->foreign('users_id')->references('id')->on('users');
+            $table->unsignedBigInteger('user_id')->comment('Идентификатор пользователя');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ class ParentController extends Controller
      */
     public function getParentInformation(): JsonResponse
     {
-        $parents = Auth::user()->parents ? Auth::user()->parents : [];
+        $parents = Auth::user()->parents ? Auth::user()->parents->all() : [];
         return response()->json([
             'code' => 200,
             'message' => 'Parents found',

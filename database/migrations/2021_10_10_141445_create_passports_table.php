@@ -24,8 +24,8 @@ class CreatePassportsTable extends Migration
             $table->string('place_of_birth')->comment('Место рождения');
             $table->string('registration_address')->comment('Адрес регистрации');
             $table->boolean('lack_of_citizenship')->comment('Не являюсь гражданином РФ');
-            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
-            $table->foreign('users_id')->references('id')->on('users');
+            $table->unsignedBigInteger('user_id')->comment('Идентификатор пользователя');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

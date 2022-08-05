@@ -7,12 +7,10 @@ use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
 use App\Models\Roles;
 use App\Models\User;
-use App\Services\AuthService;
-use App\Services\ValidatorService;
-use http\Client\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Request;
 
 class AuthController extends Controller
 {
@@ -220,6 +218,7 @@ class AuthController extends Controller
             throw new ApiException(422, 'Invalid login/password');
         }
 
+        /** @var User $user */
         $user = Auth::user();
         $role = $user->roles[0]->slug;
         $token = $user->createToken('token')->plainTextToken;

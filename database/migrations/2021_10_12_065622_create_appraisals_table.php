@@ -17,8 +17,8 @@ class CreateAppraisalsTable extends Migration
             $table->id();
             $table->string('subject')->comment('Предмет');
             $table->integer('appraisal')->comment('Оценка');
-            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
-            $table->foreign('users_id')->references('id')->on('users');
+            $table->unsignedBigInteger('user_id')->comment('Идентификатор пользователя');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

@@ -23,8 +23,8 @@ class CreatePersonalsDataTable extends Migration
             $table->boolean('childhood_disabled')->nullable()->comment('Инвалид детства');
             $table->boolean('the_large_family')->nullable()->comment('Многодетная семья');
             $table->boolean('hostel_for_students')->nullable()->comment('Нуждаюсь в общежитии');
-            $table->unsignedBigInteger('users_id')->comment('Идентификатор пользователя');
-            $table->foreign('users_id')->references('id')->on('users');
+            $table->unsignedBigInteger('user_id')->comment('Идентификатор пользователя');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

@@ -61,7 +61,7 @@ class User extends Authenticatable
      */
     public function personalData(): HasOne
     {
-      return $this->hasOne(PersonalsData::class, 'users_id', 'id');
+      return $this->hasOne(PersonalsData::class);
     }
 
     /**

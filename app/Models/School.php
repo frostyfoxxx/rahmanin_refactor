@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_of_photo Количество фотографий, предъявленных при очной встрече
  * @property string $version_of_certificate Версия сертификата (копия или оригинал)
  * @property double $middlemark Средний балл
- * @property int $users_id Ключ-ссылка на пользователя
+ * @property int $user_id Ключ-ссылка на пользователя
  * @property-read $users Связь с сущностью Пользователь
  */
 class School extends Model
@@ -30,7 +30,7 @@ class School extends Model
         'number_of_photo',
         'version_of_the_certificate',
         'middlemark',
-        'users_id'
+        'user_id'
     ];
 
     /**

@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Appraisal;
 use App\Models\School;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class AppraisalService
@@ -15,7 +17,7 @@ class AppraisalService
     public function checkAppraisalData(): bool
     {
         $user = auth('sanctum')->user()->id;
-        $appraisal = Appraisal::query()->where('users_id')->get();
+        $appraisal = Appraisal::query()->where('user_id')->get();
         if ($appraisal->isEmpty()) {
             $result = false;
         } else {
@@ -27,12 +29,12 @@ class AppraisalService
 
     /**
      * Получение предметов пользователя
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @return Builder[]|Collection
      */
     public function getAppraisal() {
         $user = auth('sanctum')->user()->id;
 
-        return Appraisal::query()->where('users_id', $user)->get();
+        return Appraisal::query()->where('user_id', $user)->get();
     }
 
     /**
@@ -46,7 +48,7 @@ class AppraisalService
             Appraisal::create([
                 'subject' => $subject['subject'],
                 'appraisal' => $subject['appraisal'],
-                'users_id' => $user
+                'user_id' => $user
             ]);
         }
     }
@@ -61,7 +63,7 @@ class AppraisalService
         $user = auth('sanctum')->user()->id;
         foreach ($request->all() as $subject) {
             if (Appraisal::query()
-                ->where('users_id', $user)
+                ->where('user_id', $user)
                 ->where('subject', $subject['subject'])
                 ->first()
             ) {
@@ -80,7 +82,7 @@ class AppraisalService
     {
         $user = auth('sanctum')->user()->id;
 
-        return School::select('middlemark')->where('users_id', $user)->first()->middlemark;
+        return School::select('middlemark')->where('user_id', $user)->first()->middlemark;
     }
 
     /**
@@ -90,14 +92,14 @@ class AppraisalService
     public function changeMiddlemark()
     {
         $user = auth('sanctum')->user()->id;
-        $appraisal = Appraisal::select('appraisal')->where('users_id', $user)->get();
+        $appraisal = Appraisal::select('appraisal')->where('user_id', $user)->get();
         $summark = 0;
         foreach ($appraisal as $mark) {
             $summark += $mark->appraisal;
         }
         $middlemark = round($summark / count($appraisal), 2);
 
-        $schoolData = School::query()->where('users_id', $user)->first();
+        $schoolData = School::query()->where('user_id', $user)->first();
         $schoolData['middlemark'] = $middlemark;
         $schoolData->save();
     }

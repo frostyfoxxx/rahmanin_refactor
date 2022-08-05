@@ -14,7 +14,7 @@ class Appraisal extends Model
     protected $fillable = [
         'subject',
         'appraisal',
-        'users_id'
+        'user_id'
     ];
 
     /*
