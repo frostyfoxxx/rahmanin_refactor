@@ -12,7 +12,7 @@ class SignUpRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'phone_number' => ['required', 'numeric', 'digits:11'],
+            'phone_number' => ['required', 'numeric', 'digits:11', 'unique:users,phone_number'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6']
         ];

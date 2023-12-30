@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Exceptions\ApiException;
 use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
-use App\Models\Roles;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+define("TOKEN_LIFETIME", env('TOKEN_LIFETIME', 10080));
 
 class AuthController extends Controller
 {
@@ -103,28 +104,12 @@ class AuthController extends Controller
      */
     public function signUp(SignUpRequest $request): JsonResponse
     {
-        if (User::query()
-            ->where('phone_number', '=', $request->input('phone_number'))
-            ->orWhere('email', '=' . $request->input('email'))
-            ->first()
-        ) {
-            throw new ApiException(422, 'This user already registered');
-        }
-
-        $user = User::create([
-                'phone_number' => $request->input('phone_number'),
-                'email' => $request->input('email'),
-                'password' => Hash::make($request->input('password')),
-                'stuff' => false
-            ]
-        );
-        $user->roles()->attach(Roles::where('slug', 'student')->first());
-        $user->save();
-
+        $userModel = new User();
+        $userModel->createUser($request);
         return response()->json([
-            'code' => 201,
+            'code' => Response::HTTP_CREATED,
             'message' => "Users has been created"
-        ])->setStatusCode(201);
+        ])->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -215,20 +200,23 @@ class AuthController extends Controller
     public function signIn(SignInRequest $request): JsonResponse
     {
         if (!Auth::attempt($request->all())) {
-            throw new ApiException(422, 'Invalid login/password');
+            throw new ApiException(
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                'Invalid login/password'
+            );
         }
 
         /** @var User $user */
         $user = Auth::user();
         $role = $user->roles[0]->slug;
         $token = $user->createToken('token')->plainTextToken;
-        $cookie = cookie('jwt', $token, 60 * 24 * 7); // 7 day;
+        $cookie = cookie('jwt', $token, TOKEN_LIFETIME);
 
         return response()->json([
-            'code' => 200,
+            'code' => Response::HTTP_OK,
             'message' => 'Authentication successful',
             'role' => $role
-        ])->withCookie($cookie)->setStatusCode(200);
+        ])->withCookie($cookie)->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -241,8 +229,8 @@ class AuthController extends Controller
         $user = $request->user();
         $user->currentAccessToken()->detele();
         return response()->json([
-            'code' => 200,
+            'code' => Response::HTTP_OK,
             'message' => 'Logout success'
-        ], 200);
+        ], Response::HTTP_OK);
     }
 }

@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class ApiRequest extends FormRequest
 {
-    protected function failedValidation(Validator $validator)
+    protected function failedValidation(Validator $validator): ApiException
     {
         throw new ApiException(422, 'Validation Error', $validator->errors());
     }

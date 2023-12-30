@@ -8,6 +8,7 @@ use App\Http\Resources\PersonalsDataResource;
 use App\Models\PersonalsData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class PersonalDataController extends Controller
 {
@@ -89,10 +90,10 @@ class PersonalDataController extends Controller
     {
         $foundedData = Auth::user()->personalData ? Auth::user()->personalData->all() : [];
         return response()->json([
-            'code' => 200,
+            'code' => Response::HTTP_CREATED,
             'message' => 'Personal Data found',
             'data' => PersonalsDataResource::collection($foundedData)
-        ])->setStatusCode(200);
+        ])->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -189,18 +190,19 @@ class PersonalDataController extends Controller
      */
     public function postPersonalData(PersonalDataRequest $request): JsonResponse
     {
+        $pData = new PersonalsData();
         if (Auth::user()->personalData) {
-            throw new ApiException(300, 'Personal Data already exists');
+            throw new ApiException(
+                Response::HTTP_MULTIPLE_CHOICES,
+                'Personal Data already exists'
+            );
         }
-
-        $personalData = PersonalsData::make($request->all());
-        $personalData->user_id = Auth::user()->id;
-        $personalData->save();
+        $pData->createPersonalData($request);
 
         return response()->json([
-            'code' => 201,
+            'code' => Response::HTTP_CREATED,
             'message' => 'Personal Data has been created'
-        ])->setStatusCode(201);
+        ])->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -304,19 +306,11 @@ class PersonalDataController extends Controller
             throw new ApiException(300, 'Personal data not found for updating');
         }
 
-        $personalData->first_name = $request->first_name;
-        $personalData->middle_name = $request->middle_name;
-        $personalData->last_name = $request->last_name;
-        $personalData->phone = $request->phone;
-        $personalData->orphan = $request->orphan;
-        $personalData->childhood_disabled = $request->childhood_disabled;
-        $personalData->the_large_family = $request->the_large_family;
-        $personalData->hostel_for_students = $request->hostel_for_students;
-        $personalData->save();
+        $personalData->updatePersonalData($personalData, $request);
 
         return response()->json([
-            'code' => 200,
+            'code' => Response::HTTP_OK,
             'message' => 'Personal data has been updated'
-        ], 200);
+        ], Response::HTTP_OK);
     }
 }
