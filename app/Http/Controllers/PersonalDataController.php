@@ -91,7 +91,7 @@ class PersonalDataController extends Controller
         $foundedData = Auth::user()->personalData ? Auth::user()->personalData->all() : [];
         return response()->json([
             'code' => Response::HTTP_CREATED,
-            'message' => 'Personal Data founded',
+            'message' => 'Personal Data found',
             'data' => PersonalsDataResource::collection($foundedData)
         ])->setStatusCode(Response::HTTP_CREATED);
     }
