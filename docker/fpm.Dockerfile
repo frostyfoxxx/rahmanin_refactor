@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.3-fpm
 
 
 RUN apt-get update && apt-get install -y \
@@ -33,4 +33,4 @@ RUN mkdir -p /home/www/.composer && \
     chown -R www:www /home/www
 
 USER www
-WORKDIR /var/www/diplom
+WORKDIR /var/www/pet
