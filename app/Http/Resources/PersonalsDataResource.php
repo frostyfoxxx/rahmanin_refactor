@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use OpenApi\Annotations as OA;
 
 /**
  * Класс ресурс для персональных данных
@@ -16,6 +17,31 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property bool $childhood_disabled - Инвалид детства
  * @property bool $the_large_family - Многодетная семья
  * @property bool $hostel_for_students - Нуждается в общежитии
+ *
+ * @OA\Schema(
+ *   schema="personalData",
+ *   type="object",
+ *   @OA\Property(
+ *     property="phone",
+ *     type="string",
+ *     example="88005553535"
+ *   ),
+ *   @OA\Property(
+ *     property="first_name",
+ *     type="string",
+ *     example="Иванов"
+ *   ),
+ *   @OA\Property(
+ *      property="middle_name",
+ *      type="string",
+ *      example="Иван"
+ *    ),
+ *    @OA\Property(
+ *      property="last_name",
+ *      type="string",
+ *      example="Иванович"
+ *     ),
+ * )
  */
 class PersonalsDataResource extends JsonResource
 {

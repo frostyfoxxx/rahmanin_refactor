@@ -8,6 +8,7 @@ use App\Http\Resources\PersonalsDataResource;
 use App\Models\PersonalsData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 
 class PersonalDataController extends Controller
@@ -17,8 +18,7 @@ class PersonalDataController extends Controller
      * @OA\Get(
      *   path="/api/user/personal",
      *   summary="Получение персональных данных",
-     *   description="Получение персональных данных по куки-файлу",
-     *   operationId="getPersonalData",
+     *   description="Получение персональных данных по куки-файлу",\
      *   tags={"Персональные данные"},
      *   @OA\RequestBody(
      *     required=false
@@ -41,7 +41,7 @@ class PersonalDataController extends Controller
      *         property="data",
      *         type="array",
      *         @OA\Items(
-     *           ref="#/components/schemas/PersonalData"
+     *           ref="#/components/schemas/personalData"
      *         )
      *       ),
      *     ),
@@ -102,7 +102,6 @@ class PersonalDataController extends Controller
      *   path="/api/user/personal",
      *   summary="Добавление персональных данных",
      *   description="Добавление персональных данных",
-     *   operationId="postPersonalData",
      *   tags={"Персональные данные"},
      *   @OA\RequestBody(
      *     required=true,
@@ -176,12 +175,7 @@ class PersonalDataController extends Controller
      *         property="message",
      *         type="string",
      *         example="Validation error"
-     *       ),
-     *       @OA\Property(
-     *         property="errors",
-     *         type="object",
-     *         ref="#/components/schemas/Validation"
-     *       ),
+     *       )
      *     )
      *   ),
      * )
@@ -286,11 +280,6 @@ class PersonalDataController extends Controller
      *         property="message",
      *         type="string",
      *         example="Validation error"
-     *       ),
-     *       @OA\Property(
-     *         property="errors",
-     *         type="object",
-     *         ref="#/components/schemas/Validation"
      *       ),
      *     )
      *   ),

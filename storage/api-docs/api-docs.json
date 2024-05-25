@@ -1,0 +1,550 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Диплом API",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/signup": {
+            "post": {
+                "tags": [
+                    "Регистрация и авторизация"
+                ],
+                "summary": "Регистрация",
+                "description": "Регистрация по номеру телефона, почте и паролю",
+                "operationId": "4e2cd7902aa33bbc21d138be0262a468",
+                "requestBody": {
+                    "description": "Данные для регистрации пользователя",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone_number",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "8996501812"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ivanov3@mail.ru"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "testpassword"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Пользователь создан",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": "201"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User has been created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Этот пользователь уже зарегистрирован",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": "200"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The user is already registered"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибки валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": "422"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        },
+                                        "error": {
+                                            "$ref": "#/components/schemas/Validation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth": {
+            "post": {
+                "tags": [
+                    "Регистрация и авторизация"
+                ],
+                "summary": "Авторизация",
+                "description": "Авторизация по номеру телефона и паролю",
+                "operationId": "signIn",
+                "requestBody": {
+                    "description": "Данные для авторизации пользователя",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "89965041812"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "testpassword"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успешная авторизация",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Authentication successful"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "student"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Этот пользователь не зарегистрирован",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This user not register"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибки валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/personal": {
+            "get": {
+                "tags": [
+                    "Персональные данные"
+                ],
+                "summary": "Получение персональных данных",
+                "description": "Получение персональных данных по куки-файлу",
+                "operationId": "PersonalData",
+                "requestBody": {
+                    "required": false
+                },
+                "responses": {
+                    "200": {
+                        "description": "Персональные данные получены",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": "200"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Personal Data found"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/personalData"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "300": {
+                        "description": "Персональные данные не найдены",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Personal Data not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибки валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        },
+                                        "errors": {
+                                            "$ref": "#/components/schemas/Validation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Персональные данные"
+                ],
+                "summary": "Добавление персональных данных",
+                "description": "Добавление персональных данных",
+                "operationId": "008854d1ed9c192c7c6d43efe6c60b5d",
+                "requestBody": {
+                    "description": "Персональные данные",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "middle_name",
+                                    "last_name",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "Иван"
+                                    },
+                                    "middle_name": {
+                                        "type": "string",
+                                        "example": "Иванович"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Иванов"
+                                    },
+                                    "phone": {
+                                        "type": "numeric",
+                                        "example": 89005553535
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Персональные данные созданы",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": "201"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Personal Data has been updated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "300": {
+                        "description": "Персональных данных не существуeт",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 300
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Personal Data already exists"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибки валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Персональные данные"
+                ],
+                "summary": "Изменение персональных данных",
+                "description": "Изменение персональных данных",
+                "operationId": "postPersonalData",
+                "requestBody": {
+                    "description": "Персональные данные",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "middle_name",
+                                    "last_name",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "Иван"
+                                    },
+                                    "middle_name": {
+                                        "type": "string",
+                                        "example": "Иванович"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Иванов"
+                                    },
+                                    "phone": {
+                                        "type": "numeric",
+                                        "example": 89005553535
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Персональные данные изменены",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": "200"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Personal Data has been created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "300": {
+                        "description": "Персональные данные уже существуют",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 300
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Personal data has not been created yet"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибки валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Validation": {
+                "properties": {
+                    "field1": {
+                        "description": "Класс-эксепшн для апи. Формирует удобный вывод всех возможных сценариев ошибок",
+                        "type": "array",
+                        "items": {
+                            "example": "The field1 field is required"
+                        }
+                    },
+                    "field2": {
+                        "type": "array",
+                        "items": {
+                            "example": "The field2 must be a number."
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "personalData": {
+                "properties": {
+                    "phone": {
+                        "description": "Класс ресурс для персональных данных",
+                        "type": "string",
+                        "example": "88005553535"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "example": "Иванов"
+                    },
+                    "middle_name": {
+                        "type": "string",
+                        "example": "Иван"
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "example": "Иванович"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

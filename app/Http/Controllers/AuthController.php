@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 
 define("TOKEN_LIFETIME", env('TOKEN_LIFETIME', 10080));
@@ -20,7 +21,6 @@ class AuthController extends Controller
      *   path="/api/signup",
      *   summary="Регистрация",
      *   description="Регистрация по номеру телефона, почте и паролю",
-     *   operationId="signUp",
      *   tags={"Регистрация и авторизация"},
      *   @OA\RequestBody(
      *     required=true,
@@ -185,11 +185,6 @@ class AuthController extends Controller
      *         property="message",
      *         type="string",
      *         example="Validation error"
-     *       ),
-     *       @OA\Property(
-     *         property="error",
-     *         type="object",
-     *         ref="#/components/schemas/Validation"
      *       )
      *     )
      *   )

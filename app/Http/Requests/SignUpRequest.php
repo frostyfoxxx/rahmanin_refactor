@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use OpenApi\Annotations as OA;
+
 class SignUpRequest extends ApiRequest
 {
     /**
